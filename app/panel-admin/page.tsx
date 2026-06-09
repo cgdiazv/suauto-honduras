@@ -1,8 +1,8 @@
-// src/app/panel-admin/page.tsx
+// app/panel-admin/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useRouter } from 'next/navigation';
 import { db, storage } from '@/lib/firebase';
@@ -12,7 +12,6 @@ import Image from 'next/image';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
-// 🚗 Diccionario de Marcas Populares y sus Modelos correspondientes
 const MAPA_MARCAS_MODELOS: { [key: string]: string[] } = {
   "Toyota": ["Corolla", "Yaris", "Hilux", "Rav4", "Land Cruiser", "Prado", "Tacoma", "Tundra", "4Runner", "Sienna", "Prius"],
   "Ford": ["F-150", "Ranger", "Escape", "Explorer", "Edge", "Focus", "Fiesta", "Mustang", "EcoSport", "Everest"],
@@ -34,9 +33,8 @@ const MAPA_MARCAS_MODELOS: { [key: string]: string[] } = {
 
 const OPCIONES_MARCAS = Object.keys(MAPA_MARCAS_MODELOS);
 
-// Catálogos de Opciones para Checkboxes
 const OPCIONES_TIPOS = ["Bicicleta", "Camión", "Convertible", "Coupé", "Cuatrimoto", "Deportivo", "Hatchback", "Minivan/Van", "Motocicleta", "Panel", "Pickup", "SUV/Camioneta", "Todo Terreno", "Turismo"];
-const OPCIONES_EXTRAS = ["Botagua", "Parrilla de Techo", "Remolque", "Defensa delantera", "Gradas locales"];
+const OPCIONES_EXTRAS = ["Botagua", "Parrilla de Techo", "Remolque", "Defensa delantera", "Gradas laterales"];
 const OPCIONES_SEGURIDAD = ["Bolsas de Aire", "Frenos ABS", "Frenos EBD"];
 const OPCIONES_INTERIOR = ["Aire Acondicionado", "Asientos de cuero", "Asientos de tela", "Cámara de reversa", "Radio CD", "Radio Pantalla Táctil", "Vidrios Eléctricos", "Cierres eléctricos", "3 Filas de asientos"];
 const OPCIONES_EXTERIOR = ["Copas de lujo", "Rines de lujo", "Halógenas", "Quemacocos"];
@@ -49,16 +47,16 @@ export default function PanelAdminPage() {
   const { user, logout, loading } = useAuth();
   const router = useRouter();
 
-  // 📌 Estado de la pestaña activa del Sidebar
   const [activeTab, setActiveTab] = useState<'vehiculos' | 'taller' | 'clientes' | 'ajustes'>('vehiculos');
-
-  // Estados del Inventario
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loadingInventory, setLoadingInventory] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
 
-  // Estados del Formulario
+  // 🔄 Control del Estado de Edición
+  const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
+
+  // Campos de Texto
   const [title, setTitle] = useState('');
   const [brand, setBrand] = useState(OPCIONES_MARCAS[0]);
   const [modelName, setModelName] = useState('');
@@ -73,7 +71,7 @@ export default function PanelAdminPage() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [salesAgent, setSalesAgent] = useState('');
 
-  // Estados de Imágenes
+  // Multimedia
   const [featuredImage, setFeaturedImage] = useState('');
   const [imgFrente, setImgFrente] = useState('');
   const [imgAtras, setImgAtras] = useState('');
@@ -88,7 +86,7 @@ export default function PanelAdminPage() {
 
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
 
-  // Checkboxes
+  // Checkboxes Arrays
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
   const [selectedSecurity, setSelectedSecurity] = useState<string[]>([]);
@@ -100,10 +98,11 @@ export default function PanelAdminPage() {
   const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
 
   useEffect(() => {
-    if (brand && MAPA_MARCAS_MODELOS[brand]) {
+    // Solo cambia automáticamente el modelo si NO estamos editando un registro cargado
+    if (!editingVehicleId && brand && MAPA_MARCAS_MODELOS[brand]) {
       setModelName(MAPA_MARCAS_MODELOS[brand][0] || '');
     }
-  }, [brand]);
+  }, [brand, editingVehicleId]);
 
   useEffect(() => {
     if (!loading) {
@@ -130,6 +129,71 @@ export default function PanelAdminPage() {
     } finally {
       setLoadingInventory(false);
     }
+  };
+
+  // Activar Formulario con los campos precargados para Edición
+  const handleEditClick = (vehicle: Vehicle) => {
+    setEditingVehicleId(vehicle.id || null);
+    
+    // Determinar si la marca guardada corresponde al mapa o es personalizada
+    if (OPCIONES_MARCAS.includes(vehicle.brand)) {
+      setBrand(vehicle.brand);
+      setCustomBrand('');
+    } else {
+      setBrand("Isla de Opciones (Otra)");
+      setCustomBrand(vehicle.brand);
+    }
+
+    setTitle(vehicle.title || '');
+    setModelName(vehicle.modelName || '');
+    setCustomModel('');
+    setStatus(vehicle.status || 'Disponible');
+    setPrice(vehicle.price || '');
+    setMileageValue(vehicle.mileage?.value || 0);
+    setMileageUnit(vehicle.mileage?.unit || 'Km');
+    setEngine(vehicle.engine || '');
+    setCountryOfOrigin(vehicle.countryOfOrigin || '');
+    setYear(vehicle.year || new Date().getFullYear());
+    setSalesAgent(vehicle.salesAgent || '');
+
+    // Precarga de Imágenes
+    setFeaturedImage(vehicle.featuredImage || '');
+    setImgFrente(vehicle.galleryImages?.frente || '');
+    setImgAtras(vehicle.galleryImages?.atras || '');
+    setImgDerecha(vehicle.galleryImages?.derecha || '');
+    setImgIzquierda(vehicle.galleryImages?.izquierda || '');
+    setImgFrenteDerecha(vehicle.galleryImages?.frenteDerecha || '');
+    setImgFrenteIzquierda(vehicle.galleryImages?.frenteIzquierda || '');
+    setImgAtrasDerecha(vehicle.galleryImages?.atrasDerecha || '');
+    setImgAtrasIzquierda(vehicle.galleryImages?.atrasIzquierda || '');
+    setImgTablero(vehicle.galleryImages?.tablero || '');
+    setImgMotor(vehicle.galleryImages?.motor || '');
+
+    // Precarga Checkboxes
+    setSelectedTypes(vehicle.types || []);
+    setSelectedExtras(vehicle.extras || []);
+    setSelectedSecurity(vehicle.security || []);
+    setSelectedInterior(vehicle.interiorFeatures || []);
+    setSelectedExterior(vehicle.exteriorFeatures || []);
+    setSelectedConditions(vehicle.conditions || []);
+    setSelectedColors(vehicle.colors || []);
+    setSelectedFuels(vehicle.fuels || []);
+    setSelectedTransmissions(vehicle.transmissions || []);
+
+    setUploadProgress({});
+    setShowAddForm(true);
+  };
+
+  const cleanFormStates = () => {
+    setEditingVehicleId(null);
+    setTitle(''); setBrand(OPCIONES_MARCAS[0]); setCustomBrand(''); setCustomModel('');
+    setPrice(''); setMileageValue(0); setEngine(''); setCountryOfOrigin(''); setSalesAgent('');
+    setFeaturedImage(''); setImgFrente(''); setImgAtras(''); setImgDerecha(''); setImgIzquierda('');
+    setImgFrenteDerecha(''); setImgFrenteIzquierda(''); setImgAtrasDerecha(''); setImgAtrasIzquierda('');
+    setImgTablero(''); setImgMotor(''); setUploadProgress({});
+    setSelectedTypes([]); setSelectedExtras([]); setSelectedSecurity([]);
+    setSelectedInterior([]); setSelectedExterior([]); setSelectedConditions([]);
+    setSelectedColors([]); setSelectedFuels([]); setSelectedTransmissions([]);
   };
 
   const uploadFileHandler = (file: File, fieldKey: string, setUrlState: (url: string) => void) => {
@@ -161,7 +225,7 @@ export default function PanelAdminPage() {
     }
   };
 
-  const handleAddVehicle = async (e: React.FormEvent) => {
+  const handleAddOrUpdateVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormSubmitting(true);
 
@@ -169,7 +233,7 @@ export default function PanelAdminPage() {
     const marcaFinal = brand === "Isla de Opciones (Otra)" ? customBrand.trim() : brand;
     const modeloFinal = modelName === "Otro Modelo" ? customModel.trim() : modelName;
 
-    const completeVehicle: Vehicle = {
+    const payloadVehicle = {
       title,
       featuredImage: featuredImage || fallbackImg,
       brand: marcaFinal || "Genérica",
@@ -177,16 +241,16 @@ export default function PanelAdminPage() {
       types: selectedTypes,
       status,
       galleryImages: {
-        frente: imgFrente || fallbackImg,
-        atras: imgAtras || fallbackImg,
-        derecha: imgDerecha || fallbackImg,
-        izquierda: imgIzquierda || fallbackImg,
-        frenteDerecha: imgFrenteDerecha || fallbackImg,
-        frenteIzquierda: imgFrenteIzquierda || fallbackImg,
-        atrasDerecha: imgAtrasDerecha || fallbackImg,
-        atrasIzquierda: imgAtrasIzquierda || fallbackImg,
-        tablero: imgTablero || fallbackImg,
-        motor: imgMotor || fallbackImg,
+        frente: imgFrente || '',
+        atras: imgAtras || '',
+        derecha: imgDerecha || '',
+        izquierda: imgIzquierda || '',
+        frenteDerecha: imgFrenteDerecha || '',
+        frenteIzquierda: imgFrenteIzquierda || '',
+        atrasDerecha: imgAtrasDerecha || '',
+        atrasIzquierda: imgAtrasIzquierda || '',
+        tablero: imgTablero || '',
+        motor: imgMotor || '',
       },
       price,
       mileage: { value: Number(mileageValue), unit: mileageUnit },
@@ -202,34 +266,33 @@ export default function PanelAdminPage() {
       colors: selectedColors,
       fuels: selectedFuels,
       transmissions: selectedTransmissions,
-      createdAt: Date.now()
     };
 
     try {
-      await addDoc(collection(db, 'vehicles'), completeVehicle);
+      if (editingVehicleId) {
+        // 🔥 ACTUALIZAR REGISTRO EXISTENTE
+        const docRef = doc(db, 'vehicles', editingVehicleId);
+        await updateDoc(docRef, payloadVehicle);
+        alert("¡Vehículo modificado con éxito!");
+      } else {
+        // 🔥 CREAR NUEVO REGISTRO
+        await addDoc(collection(db, 'vehicles'), { ...payloadVehicle, createdAt: Date.now() });
+        alert("¡Vehículo agregado con éxito!");
+      }
+      
       setShowAddForm(false);
-      
-      setTitle(''); setBrand(OPCIONES_MARCAS[0]); setCustomBrand(''); setCustomModel('');
-      setPrice(''); setMileageValue(0); setEngine(''); setCountryOfOrigin(''); setSalesAgent('');
-      setFeaturedImage(''); setImgFrente(''); setImgAtras(''); setImgDerecha(''); setImgIzquierda('');
-      setImgFrenteDerecha(''); setImgFrenteIzquierda(''); setImgAtrasDerecha(''); setImgAtrasIzquierda('');
-      setImgTablero(''); setImgMotor(''); setUploadProgress({});
-      setSelectedTypes([]); setSelectedExtras([]); setSelectedSecurity([]);
-      setSelectedInterior([]); setSelectedExterior([]); setSelectedConditions([]);
-      setSelectedColors([]); setSelectedFuels([]); setSelectedTransmissions([]);
-      
-      alert("¡Vehículo agregado con éxito!");
+      cleanFormStates();
       fetchInventory();
     } catch (err) {
       console.error(err);
-      alert("Error al guardar.");
+      alert("Error al procesar la solicitud.");
     } finally {
       setFormSubmitting(false);
     }
   };
 
   const handleDeleteVehicle = async (id: string) => {
-    if (confirm('¿Desea eliminar este vehículo?')) {
+    if (confirm('¿Desea eliminar este vehículo por completo del stock?')) {
       try {
         await deleteDoc(doc(db, 'vehicles', id));
         fetchInventory();
@@ -269,95 +332,68 @@ export default function PanelAdminPage() {
   }
 
   return (
-    // CONTENEDOR DE PANTALLA COMPLETA (Oculta visualmente desfases de elementos exteriores)
     <div className="fixed inset-0 z-50 flex h-screen w-screen bg-slate-100 overflow-hidden text-slate-800 antialiased">
       
-      {/* 1. SIDEBAR MENÚ DE LA IZQUIERDA */}
+      {/* SIDEBAR MENÚ */}
       <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 flex-shrink-0">
         <div className="flex flex-col">
-          {/* Contenedor del Logo Institucional Fijo */}
           <div className="p-6 border-b border-slate-800 bg-slate-950 flex justify-center">
-            <Image 
-              src="/logo.webp" 
-              alt="Su Auto Honduras" 
-              width={180} 
-              height={50} 
-              className="h-10 w-auto object-contain"
-              priority
-            />
+            <Image src="/logo.webp" alt="Su Auto Honduras" width={180} height={50} className="h-10 w-auto object-contain" priority />
           </div>
 
-          {/* Opciones de Navegación Estilo Tamarron Services */}
           <nav className="p-4 space-y-1.5">
-            <button 
-              onClick={() => { setActiveTab('vehiculos'); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'vehiculos' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-            >
+            <button onClick={() => { setActiveTab('vehiculos'); }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'vehiculos' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
               <span>🚗</span> <span>Inventario Stock</span>
             </button>
-            <button 
-              onClick={() => { setActiveTab('taller'); setShowAddForm(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'taller' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-            >
+            <button onClick={() => { setActiveTab('taller'); setShowAddForm(false); }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'taller' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
               <span>🔧</span> <span>Citas de Taller</span>
             </button>
-            <button 
-              onClick={() => { setActiveTab('clientes'); setShowAddForm(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'clientes' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-            >
+            <button onClick={() => { setActiveTab('clientes'); setShowAddForm(false); }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'clientes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
               <span>👥</span> <span>Clientes / Leads</span>
             </button>
-            <button 
-              onClick={() => { setActiveTab('ajustes'); setShowAddForm(false); }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'ajustes' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-            >
+            <button onClick={() => { setActiveTab('ajustes'); setShowAddForm(false); }} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'ajustes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
               <span>⚙️</span> <span>Ajustes</span>
             </button>
           </nav>
         </div>
 
-        {/* Cierre de Sesión al fondo */}
         <div className="p-4 border-t border-slate-800 bg-slate-950/40">
           <div className="text-[11px] text-slate-500 mb-2 truncate px-2">Sesión: {user.email}</div>
-          <button 
-            onClick={async () => { await logout(); router.push('/login'); }}
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-lg bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-red-900 hover:text-white transition"
-          >
+          <button onClick={async () => { await logout(); router.push('/login'); }} className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-lg bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-red-900 hover:text-white transition">
             <span>🚪</span> <span>Salir del Sistema</span>
           </button>
         </div>
       </aside>
 
-      {/* 2. ÁREA DE CONTENIDO PRINCIPAL (CON SCROLL INDEPENDIENTE) */}
+      {/* CONTENIDO PRINCIPAL */}
       <main className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
         
-        {/* Barra superior de estado del área interna */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 flex-shrink-0 shadow-xs">
-          <div className="flex items-center space-x-3">
-            <span className="text-xl font-black capitalize text-slate-900">
+          <div>
+            <span className="text-xl font-black text-slate-900">
               {activeTab === 'vehiculos' ? 'Gestión de Vehículos' : activeTab === 'taller' ? 'Control de Taller' : activeTab === 'clientes' ? 'Directorio de Clientes' : 'Configuraciones'}
             </span>
           </div>
           {activeTab === 'vehiculos' && (
             <button 
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 transition shadow-xs"
+              onClick={() => { if(showAddForm) { cleanFormStates(); setShowAddForm(false); } else { setShowAddForm(true); } }}
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 transition"
             >
               {showAddForm ? '🗂️ Ver Lista de Autos' : '➕ Publicar Auto'}
             </button>
           )}
         </header>
 
-        {/* Panel del scroll modular interno */}
-        <div className="flex-1 overflow-y-auto p-8 content-area">
+        <div className="flex-1 overflow-y-auto p-8">
           
-          {/* PESTAÑA: VEHÍCULOS */}
           {activeTab === 'vehiculos' && (
             showAddForm ? (
-              <form onSubmit={handleAddVehicle} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs max-w-4xl mx-auto space-y-8">
-                {/* 1. Post Info */}
+              <form onSubmit={handleAddOrUpdateVehicle} className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs max-w-4xl mx-auto space-y-8">
+                
                 <div className="space-y-4">
-                  <h2 className="text-lg font-bold text-blue-900 border-b pb-1.5">1. Información del Post</h2>
+                  <h2 className="text-lg font-bold text-blue-900 border-b pb-1.5">
+                    {editingVehicleId ? '📝 Editando Ficha de Vehículo' : '1. Información del Post'}
+                  </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div className="md:col-span-2">
                       <label className="block text-xs font-semibold text-slate-700 mb-1">Título del Post</label>
@@ -377,7 +413,6 @@ export default function PanelAdminPage() {
                   </div>
                 </div>
 
-                {/* 2. Ficha técnica */}
                 <div className="space-y-4">
                   <h2 className="text-lg font-bold text-blue-900 border-b pb-1.5">2. Especificaciones Técnicas</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -444,7 +479,6 @@ export default function PanelAdminPage() {
                   </div>
                 </div>
 
-                {/* 3. Los 10 ángulos */}
                 <div className="space-y-4">
                   <h2 className="text-lg font-bold text-blue-900 border-b pb-1.5">3. Galería (10 Ángulos)</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
@@ -461,10 +495,8 @@ export default function PanelAdminPage() {
                   </div>
                 </div>
 
-                {/* 4. Checkboxes */}
                 <div className="space-y-6">
                   <h2 className="text-lg font-bold text-blue-900 border-b pb-1.5">4. Equipamiento</h2>
-                  {/* Tipo */}
                   <div>
                     <h3 className="text-xs font-bold text-slate-800 mb-2">Tipo de Vehículo</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -476,7 +508,6 @@ export default function PanelAdminPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Condición */}
                   <div>
                     <h3 className="text-xs font-bold text-slate-800 mb-2">Condiciones</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -488,7 +519,6 @@ export default function PanelAdminPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Combustible */}
                   <div>
                     <h3 className="text-xs font-bold text-slate-800 mb-2">Combustible</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -500,7 +530,6 @@ export default function PanelAdminPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Transmisiones */}
                   <div>
                     <h3 className="text-xs font-bold text-slate-800 mb-2">Transmisión</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -512,7 +541,6 @@ export default function PanelAdminPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Colores */}
                   <div>
                     <h3 className="text-xs font-bold text-slate-800 mb-2">Color</h3>
                     <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
@@ -527,12 +555,14 @@ export default function PanelAdminPage() {
                 </div>
 
                 <div className="pt-4 border-t flex justify-end gap-3">
-                  <button type="button" onClick={() => setShowAddForm(false)} className="rounded-lg border px-4 py-2 text-xs text-slate-600">Cancelar</button>
-                  <button type="submit" disabled={formSubmitting} className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white">{formSubmitting ? 'Publicando...' : 'Publicar Vehículo'}</button>
+                  <button type="button" onClick={() => { cleanFormStates(); setShowAddForm(false); }} className="rounded-lg border px-4 py-2 text-xs text-slate-600">Cancelar</button>
+                  <button type="submit" disabled={formSubmitting} className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white">
+                    {formSubmitting ? 'Procesando...' : editingVehicleId ? 'Guardar Cambios' : 'Publicar Vehículo'}
+                  </button>
                 </div>
               </form>
             ) : (
-              /* TABLA DE STOCK LIST */
+              /* TABLA DE STOCK LIST MODIFICADA CON ACCIÓN EDITAR */
               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
                 {loadingInventory ? (
                   <div className="p-12 text-center text-slate-500 text-sm">Cargando inventario...</div>
@@ -555,7 +585,7 @@ export default function PanelAdminPage() {
                             <td className="p-4 flex items-center gap-3">
                               {car.featuredImage && <img src={car.featuredImage} alt="" className="w-12 h-12 object-cover rounded-md bg-slate-100 flex-shrink-0" />}
                               <div>
-                                <div className="font-bold text-slate-900">{car.title || `${car.brand} ${car.modelName}`}</div>
+                                <div className="font-bold text-slate-900 uppercase">{car.title || `${car.brand} ${car.modelName}`}</div>
                                 <div className="text-xs text-slate-400">Año {car.year} • Asesor: {car.salesAgent || 'N/A'}</div>
                               </div>
                             </td>
@@ -564,7 +594,21 @@ export default function PanelAdminPage() {
                               <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs px-2 py-0.5 rounded-full">{car.status}</span>
                             </td>
                             <td className="p-4 text-right">
-                              <button onClick={() => handleDeleteVehicle(car.id!)} className="text-xs font-semibold text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-md">Eliminar</button>
+                              <div className="flex justify-end gap-3">
+                                {/* 🔥 NUEVO BOTÓN DE EDICIÓN */}
+                                <button 
+                                  onClick={() => handleEditClick(car)} 
+                                  className="text-xs font-bold text-blue-600 hover:bg-blue-50 px-2.5 py-1 rounded-md"
+                                >
+                                  Editar
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteVehicle(car.id!)} 
+                                  className="text-xs font-semibold text-red-600 hover:bg-red-50 px-2.5 py-1 rounded-md"
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -576,7 +620,7 @@ export default function PanelAdminPage() {
             )
           )}
 
-          {/* PESTAÑA: CITAS DE TALLER (PANEL VACÍO LISTO PARA DESARROLLAR) */}
+          {/* CITAS DE TALLER */}
           {activeTab === 'taller' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
               <div className="text-4xl">🔧</div>
@@ -585,7 +629,7 @@ export default function PanelAdminPage() {
             </div>
           )}
 
-          {/* PESTAÑA: CLIENTES (PANEL VACÍO LISTO PARA DESARROLLAR) */}
+          {/* CLIENTES */}
           {activeTab === 'clientes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
               <div className="text-4xl">👥</div>
@@ -594,7 +638,7 @@ export default function PanelAdminPage() {
             </div>
           )}
 
-          {/* PESTAÑA: AJUSTES (PANEL VACÍO LISTO PARA DESARROLLAR) */}
+          {/* AJUSTES */}
           {activeTab === 'ajustes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
               <div className="text-4xl">⚙️</div>
