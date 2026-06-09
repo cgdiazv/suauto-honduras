@@ -304,23 +304,58 @@ export default function PanelAdminPage() {
 
   const renderMediaField = (label: string, fieldKey: string, currentUrl: string, setUrlState: (url: string) => void) => {
     const progress = uploadProgress[fieldKey] || 0;
+    // 🔥 Detectamos si el archivo se está transmitiendo en este momento
+    const isUploading = progress > 0 && progress < 100;
+
     return (
       <div className="flex flex-col space-y-2 border border-slate-200 p-3 rounded-xl bg-slate-50/50">
         <label className="text-xs font-bold text-slate-700">{label}</label>
+        
         {currentUrl ? (
+          /* VISTA 1: IMAGEN YA SUBIDA CON ÉXITO */
           <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-white">
             <img src={currentUrl} alt={label} className="h-full w-full object-cover" />
-            <button type="button" onClick={() => setUrlState('')} className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-[10px] px-2 font-bold">Quitar</button>
+            <button 
+              type="button" 
+              onClick={() => {
+                setUrlState(''); 
+                setUploadProgress(prev => ({ ...prev, [fieldKey]: 0 }));
+              }} 
+              className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-[10px] px-2 font-bold hover:bg-red-700 transition shadow-xs"
+            >
+              Quitar
+            </button>
+          </div>
+        ) : isUploading ? (
+          /* VISTA 2: ESTADO DE CARGA ACTIVO (¡NUEVO!) */
+          <div className="relative flex flex-col items-center justify-center border-2 border-blue-300 rounded-lg p-6 bg-blue-50/30 animate-pulse min-h-[100px]">
+            <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
+              ⏳ Subiendo...
+            </span>
+            <span className="text-lg font-black text-blue-900 mt-1">{progress}%</span>
+            <div className="w-full bg-slate-200 rounded-full h-2 mt-3 max-w-[180px]">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
           </div>
         ) : (
-          <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-white hover:bg-slate-50 cursor-pointer">
-            <input type="file" accept="image/*" onChange={(e) => { if(e.target.files?.[0]) uploadFileHandler(e.target.files[0], fieldKey, setUrlState); }} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+          /* VISTA 3: CUADRO POR DEFECTO PARA SELECCIONAR */
+          <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-white hover:bg-slate-50 transition cursor-pointer min-h-[100px]">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={(e) => { 
+                if(e.target.files?.[0]) {
+                  // Cambiamos el progreso a 1% inmediatamente para gatillar el estado de "Subiendo"
+                  setUploadProgress(prev => ({ ...prev, [fieldKey]: 1 }));
+                  uploadFileHandler(e.target.files[0], fieldKey, setUrlState); 
+                }
+              }} 
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" 
+            />
             <span className="text-xs font-semibold text-blue-600">📸 Cargar Foto</span>
-            {progress > 0 && progress < 100 && (
-              <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2">
-                <div className="bg-blue-600 h-1.5 rounded-full" style={{ width: `${progress}%` }}></div>
-              </div>
-            )}
           </div>
         )}
       </div>
