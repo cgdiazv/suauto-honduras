@@ -2,10 +2,9 @@
 import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
-import Image from 'next/image';
 import Link from 'next/link';
 
-// Fetching live vehicles data directly on the server
+// Fetching live vehicles data directamente en el server
 async function getLiveVehicles(): Promise<Vehicle[]> {
   try {
     const q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'), limit(12));
@@ -18,7 +17,7 @@ async function getLiveVehicles(): Promise<Vehicle[]> {
     return vehicles;
   } catch (error) {
     console.error("Error fetching live inventory from Firestore:", error);
-    return []; // Fallback to an empty list if data fails or permissions aren't set yet
+    return [];
   }
 }
 
@@ -28,7 +27,7 @@ export default async function Home() {
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-950 to-slate-900 py-20 px-4 text-white text-center">
+      <section className="relative bg-gradient-to-r from-blue-955 to-slate-900 py-20 px-4 text-white text-center">
         <div className="mx-auto max-w-4xl space-y-6">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
             Encuentra tu próximo vehículo en San Pedro Sula
@@ -70,16 +69,18 @@ export default async function Home() {
         {liveVehicles.length === 0 ? (
           <div className="mt-12 text-center text-slate-500 py-12 border rounded-xl border-dashed bg-white">
             <p className="font-semibold text-lg">No hay vehículos para mostrar por el momento.</p>
+            <p className="text-sm text-slate-400 mt-1">Inicia sesión en el Portal para publicar tus primeros autos listados.</p>
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
             {liveVehicles.map((vehicle) => (
               <div key={vehicle.id} className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition">
+                
                 {/* Image Wrap */}
                 <div className="aspect-video relative bg-slate-100 group-hover:opacity-95 transition">
                   <img
-                    src={vehicle.imageUrls[0]}
-                    alt={`${vehicle.brand} ${vehicle.modelName}`}
+                    src={vehicle.featuredImage}
+                    alt={vehicle.title || `${vehicle.brand} ${vehicle.modelName}`}
                     className="h-full w-full object-cover object-center"
                   />
                   <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
@@ -97,11 +98,11 @@ export default async function Home() {
                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition">
                       <Link href={`/vehiculos/${vehicle.id}`}>
                         <span className="absolute inset-0" />
-                        {vehicle.brand} {vehicle.modelName} ({vehicle.year})
+                        {vehicle.title || `${vehicle.brand} ${vehicle.modelName} (${vehicle.year})`}
                       </Link>
                     </h3>
                     <p className="mt-1 text-sm text-slate-500">
-                      Motor {vehicle.engine} • {vehicle.transmission} • {vehicle.type}
+                      Motor {vehicle.engine} • {vehicle.transmissions?.join(', ')} • {vehicle.types?.join(', ')}
                     </p>
                   </div>
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
@@ -109,6 +110,7 @@ export default async function Home() {
                     <span className="text-xs font-semibold text-blue-600 group-hover:underline">Ver detalles &rarr;</span>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>
