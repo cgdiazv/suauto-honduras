@@ -1,15 +1,21 @@
 // src/components/Header.tsx
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo Text/Image Placeholder */}
+        {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-black tracking-tight text-blue-900">
-            SU AUTO<span className="text-blue-500">.hn</span>
-          </span>
+          <Image 
+            src="/logo.webp" 
+            alt="Su Auto Honduras" 
+            width={200} 
+            height={60} 
+            className="h-10 w-auto"
+            priority
+          />
         </Link>
 
         {/* Navigation */}
@@ -22,13 +28,13 @@ export default function Header() {
           <Link href="/contacto" className="hover:text-blue-600 transition">Contáctenos</Link>
         </nav>
 
-        {/* Admin Link / CTA */}
+        {/* Portal Único de Entrada */}
         <div className="flex items-center space-x-4">
           <Link 
-            href="/admin" 
-            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200 transition"
+            href="/login" 
+            className="rounded-lg bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 transition"
           >
-            Portal Admin
+            Ingresar
           </Link>
         </div>
       </div>
