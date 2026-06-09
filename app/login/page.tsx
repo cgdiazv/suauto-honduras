@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 
@@ -120,7 +121,14 @@ export default function LoginPage() {
             {isLoggingIn ? 'Verificando...' : 'Iniciar Sesión'}
           </button>
         </form>
+
+        <div className="text-center text-sm text-slate-500 border-t pt-4 mt-4">
+          ¿Cliente nuevo?{' '}
+          <Link href="/registro" className="font-semibold text-blue-600 hover:underline">
+            Regístrese aquí para abrir su cuenta
+          </Link>
+        </div>
       </div>
     </div>
   );
-}   
+}
