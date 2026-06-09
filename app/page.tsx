@@ -27,14 +27,19 @@ export default async function Home() {
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-955 to-slate-900 py-20 px-4 text-white text-center">
-        <div className="mx-auto max-w-4xl space-y-6">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-            Encuentra tu próximo vehículo en San Pedro Sula
-          </h1>
-          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-            Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento.
-          </p>
+      <section 
+  className="relative bg-cover bg-center py-24 px-4 text-white text-center"
+  style={{ 
+    backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85)), url('/hero-suauto.png')` 
+  }}
+>
+  <div className="mx-auto max-w-4xl space-y-6 relative z-10">
+    <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl drop-shadow-md">
+      Encuentra tu próximo vehículo en San Pedro Sula
+    </h1>
+    <p className="text-xl text-blue-100 max-w-2xl mx-auto drop-shadow-xs">
+      Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento.
+    </p>
           
           {/* Custom Tailwind v4 Filter Inputs */}
           <div className="mx-auto mt-10 max-w-3xl rounded-xl bg-white p-4 shadow-xl text-slate-800 grid grid-cols-1 gap-4 sm:grid-cols-4 items-center">
@@ -69,7 +74,6 @@ export default async function Home() {
         {liveVehicles.length === 0 ? (
           <div className="mt-12 text-center text-slate-500 py-12 border rounded-xl border-dashed bg-white">
             <p className="font-semibold text-lg">No hay vehículos para mostrar por el momento.</p>
-            <p className="text-sm text-slate-400 mt-1">Inicia sesión en el Portal para publicar tus primeros autos listados.</p>
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">

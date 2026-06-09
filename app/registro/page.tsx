@@ -77,7 +77,7 @@ export default function RegistroPage() {
             Crear Cuenta
           </h2>
           <p className="mt-2 text-sm text-slate-500">
-            Regístrese para gestionar citas de taller y cotizaciones en Su Auto
+            Regístrese para gestionar rentas de vehículos y citas en el taller
           </p>
         </div>
 
