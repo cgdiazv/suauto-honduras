@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { formatPrice } from '@/lib/format';
 
 // Inicializamos Resend con la llave del entorno secreto
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
             <li><strong>Marca y Modelo:</strong> ${brand} ${modelName}</li>
             <li><strong>Año:</strong> ${year}</li>
             <li><strong>Kilometraje:</strong> ${Number(mileage).toLocaleString()} km</li>
-            <li><strong>Precio Pretendido:</strong> ${price}</li>
+            <li><strong>Precio Pretendido:</strong> ${formatPrice(price)}</li>
             <li><strong>Transmisión:</strong> ${transmission}</li>
             <li><strong>Combustible:</strong> ${fuelType}</li>
           </ul>

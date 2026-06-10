@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Vehicle } from '@/types/vehicle';
 import Image from 'next/image';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/format';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
@@ -624,7 +625,7 @@ export default function PanelAdminPage() {
                                 <div className="text-[10px] text-slate-400">Año {car.year} • Asesor: {car.salesAgent || 'N/A'}</div>
                               </div>
                             </td>
-                            <td className="p-4 font-semibold text-blue-900 text-xs sm:text-sm">{car.price}</td>
+                            <td className="p-4 font-semibold text-blue-900 text-xs sm:text-sm">{formatPrice(car.price)}</td>
                             <td className="p-4">
                               <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full">{car.status}</span>
                             </td>

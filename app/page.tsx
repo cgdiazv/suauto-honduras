@@ -6,6 +6,7 @@ import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
+import { formatPrice } from '@/lib/format';
 
 export default function Home() {
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
@@ -207,7 +208,7 @@ export default function Home() {
                     </p>
                   </div>
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-base font-extrabold text-blue-900">{vehicle.price}</span>
+                    <span className="text-base font-extrabold text-blue-900">{formatPrice(vehicle.price)}</span>
                     <span className="text-xs font-semibold text-blue-600 group-hover:underline">Ver detalles &rarr;</span>
                   </div>
                 </div>
