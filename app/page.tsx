@@ -7,6 +7,7 @@ import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
+import { X } from 'lucide-react';
 
 export default function Home() {
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
@@ -157,9 +158,7 @@ export default function Home() {
     }}
     className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition flex items-center gap-1 cursor-pointer"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-    </svg>
+    <X className="w-3.5 h-3.5" />
     Limpiar Filtros
   </button>
 )}
@@ -187,7 +186,7 @@ export default function Home() {
                   />
                   <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
                     <span className={`text-[11px] font-bold tracking-wide uppercase px-2.5 py-1 rounded-md shadow-xs ${
-                      vehicle.status === 'Disponible' ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
+                      vehicle.status === 'Disponible' ? 'bg-[#67bd45] text-white' : 'bg-slate-600 text-white'
                     }`}>
                       {vehicle.status}
                     </span>

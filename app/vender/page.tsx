@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+import { Camera, PartyPopper, XCircle, Loader2 } from 'lucide-react';
 
 export default function VenderVehiculo() {
   // Datos del Formulario
@@ -104,15 +105,15 @@ export default function VenderVehiculo() {
 
       {submitStatus === 'success' && (
         <div className="mb-8 p-6 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
-          <span className="text-2xl">🎉</span>
+          <span className="flex justify-center"><PartyPopper className="w-8 h-8 text-emerald-600" /></span>
           <h3 className="text-lg font-bold text-emerald-800 mt-2">¡Propuesta enviada con éxito!</h3>
           <p className="text-sm text-emerald-600 mt-1">Hemos recibido los datos de tu auto. El equipo de Su Auto revisará la información y te contactará pronto.</p>
         </div>
       )}
 
       {submitStatus === 'error' && (
-        <div className="mb-8 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm font-semibold text-rose-800 text-center">
-          ❌ Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde.
+        <div className="mb-8 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm font-semibold text-rose-800 text-center flex items-center justify-center gap-2">
+          <XCircle className="w-5 h-5" /> Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde.
         </div>
       )}
 
@@ -205,7 +206,7 @@ export default function VenderVehiculo() {
               </div>
             ) : isUploading ? (
               <div className="relative flex flex-col items-center justify-center border-2 border-blue-300 rounded-lg p-6 bg-blue-50/30 animate-pulse min-h-[120px]">
-                <span className="text-xs font-bold text-blue-700">⏳ Subiendo Imagen...</span>
+                <span className="text-xs font-bold text-blue-700 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Subiendo Imagen...</span>
                 <span className="text-lg font-black text-blue-900 mt-1">{uploadProgress}%</span>
                 <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 max-w-[180px]">
                   <div className="bg-blue-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
@@ -214,7 +215,7 @@ export default function VenderVehiculo() {
             ) : (
               <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-6 bg-white hover:bg-slate-50 transition cursor-pointer min-h-[120px]">
                 <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" />
-                <span className="text-xs font-bold text-blue-600">📸 Adjuntar una Foto Clara</span>
+                <span className="text-xs font-bold text-blue-600 flex items-center gap-2"><Camera className="w-5 h-5" /> Adjuntar una Foto Clara</span>
                 <span className="text-[10px] text-slate-400 mt-1">Formatos JPG o PNG de la galería</span>
               </div>
             )}
@@ -231,7 +232,7 @@ export default function VenderVehiculo() {
             }`}
           >
             {isSending ? (
-              <>⏳ Enviando Propuesta...</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> Enviando Propuesta...</>
             ) : (
               <>Enviar Datos a Su Auto &rarr;</>
             )}

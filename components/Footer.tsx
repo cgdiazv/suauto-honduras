@@ -7,9 +7,9 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} Su Auto Honduras. San Pedro Sula, Cortés. Todos los derechos reservados.
         </p>
         <div className="flex space-x-6 text-sm text-slate-400">
-          <a href="#" className="hover:text-slate-500">Privacidad</a>
-          <a href="#" className="hover:text-slate-500">Términos</a>
-          <a href="#" className="hover:text-slate-500">Soporte</a>
+          <a href="/politica" className="hover:text-slate-500">Privacidad</a>
+          <a href="/terminos" className="hover:text-slate-500">Términos</a>
+          <a href="/contacto" className="hover:text-slate-500">Soporte</a>
         </div>
       </div>
     </footer>

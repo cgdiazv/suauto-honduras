@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Menu, X, CircleDollarSign, Key, Newspaper, Mail } from 'lucide-react';
 
 export default function Header() {
   // Estado para controlar la apertura del Drawer móvil
@@ -53,9 +54,7 @@ export default function Header() {
               className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-hidden md:hidden cursor-pointer"
               aria-label="Abrir menú de navegación"
             >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <Menu className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -88,9 +87,7 @@ export default function Header() {
                 className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-hidden cursor-pointer"
               >
                 <span className="sr-only">Cerrar menú</span>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-6 w-6" />
               </button>
             </div>
 
@@ -99,30 +96,30 @@ export default function Header() {
               <Link 
                 href="/vender" 
                 onClick={closeDrawer}
-                className="flex items-center rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                className="flex items-center gap-3 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
               >
-                💰 Vender Vehículo
+                <CircleDollarSign className="w-5 h-5" /> Vender Vehículo
               </Link>
               <Link 
                 href="/rentar" 
                 onClick={closeDrawer}
-                className="flex items-center rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                className="flex items-center gap-3 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
               >
-                🔑 Rentar Vehículo
+                <Key className="w-5 h-5" /> Rentar Vehículo
               </Link>
               <Link 
                 href="/noticias" 
                 onClick={closeDrawer}
-                className="flex items-center rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                className="flex items-center gap-3 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
               >
-                📰 Noticias
+                <Newspaper className="w-5 h-5" /> Noticias
               </Link>
               <Link 
                 href="/contacto" 
                 onClick={closeDrawer}
-                className="flex items-center rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+                className="flex items-center gap-3 rounded-xl p-3 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
               >
-                ✉️ Contáctenos
+                <Mail className="w-5 h-5" /> Contáctenos
               </Link>
               
               <div className="pt-4 border-t border-slate-100">

@@ -10,6 +10,7 @@ import { Vehicle } from '@/types/vehicle';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
+import { CarFront, Key, Users, Settings, LogOut, List, Plus, Edit, Camera } from 'lucide-react';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
@@ -343,7 +344,7 @@ export default function PanelAdminPage() {
               }} 
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" 
             />
-            <span className="text-xs font-semibold text-blue-600">📸 Cargar Foto</span>
+            <span className="text-xs font-semibold text-blue-600 flex items-center gap-1.5"><Camera className="w-4 h-4" /> Cargar Foto</span>
           </div>
         )}
       </div>
@@ -379,7 +380,7 @@ export default function PanelAdminPage() {
               title="Inventario Stock"
               className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'vehiculos' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
             >
-              <span className="text-lg">🚗</span> 
+              <CarFront className="w-5 h-5" /> 
               <span className="hidden md:inline">Inventario Stock</span>
             </button>
             
@@ -388,7 +389,7 @@ export default function PanelAdminPage() {
               title="Ver Rentas"
               className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'rentas' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
             >
-              <span className="text-lg">🔑</span> 
+              <Key className="w-5 h-5" /> 
               <span className="hidden md:inline">Ver Rentas</span>
             </button>
             
@@ -397,7 +398,7 @@ export default function PanelAdminPage() {
               title="Clientes / Leads"
               className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'clientes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
             >
-              <span className="text-lg">👥</span> 
+              <Users className="w-5 h-5" /> 
               <span className="hidden md:inline">Clientes / Leads</span>
             </button>
             
@@ -406,7 +407,7 @@ export default function PanelAdminPage() {
               title="Ajustes"
               className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'ajustes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
             >
-              <span className="text-lg">⚙️</span> 
+              <Settings className="w-5 h-5" /> 
               <span className="hidden md:inline">Ajustes</span>
             </button>
           </nav>
@@ -420,7 +421,7 @@ export default function PanelAdminPage() {
             title="Salir del Sistema"
             className="w-full flex items-center justify-center space-x-0 md:space-x-2 p-2.5 rounded-lg bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-red-900 hover:text-white transition"
           >
-            <span>🚪</span> 
+            <LogOut className="w-4 h-4" /> 
             <span className="hidden md:inline">Salir</span>
           </button>
         </div>
@@ -439,9 +440,9 @@ export default function PanelAdminPage() {
           {activeTab === 'vehiculos' && (
             <button 
               onClick={() => { if(showAddForm) { cleanFormStates(); setShowAddForm(false); } else { setShowAddForm(true); } }}
-              className="rounded-lg bg-blue-600 px-3 md:px-4 py-2 text-[11px] md:text-xs font-bold text-white hover:bg-blue-700 transition"
+              className="rounded-lg bg-blue-600 px-3 md:px-4 py-2 text-[11px] md:text-xs font-bold text-white hover:bg-blue-700 transition flex items-center gap-1.5"
             >
-              {showAddForm ? '🗂️ Ver Lista' : '➕ Publicar'}
+              {showAddForm ? <><List className="w-4 h-4" /> Ver Lista</> : <><Plus className="w-4 h-4" /> Publicar</>}
             </button>
           )}
         </header>
@@ -455,8 +456,8 @@ export default function PanelAdminPage() {
                 
                 {/* Bloque 1 Form */}
                 <div className="space-y-4">
-                  <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5">
-                    {editingVehicleId ? '📝 Editando Ficha' : '1. Información del Post'}
+                  <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5 flex items-center gap-2">
+                    {editingVehicleId ? <><Edit className="w-4 h-4" /> Editando Ficha</> : '1. Información del Post'}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                     <div className="md:col-span-2">
@@ -627,7 +628,12 @@ export default function PanelAdminPage() {
                             </td>
                             <td className="p-4 font-semibold text-blue-900 text-xs sm:text-sm">{formatPrice(car.price)}</td>
                             <td className="p-4">
-                              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] sm:text-xs px-2 py-0.5 rounded-full">{car.status}</span>
+                              <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full border ${
+                                car.status === 'Disponible'
+                                  ? 'bg-[#67bd45] text-white border-[#67bd45]'
+                                  : car.status === 'Reservado'                                  ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                  : 'bg-slate-50 text-slate-700 border-slate-200'
+                              }`}>{car.status}</span>
                             </td>
                             <td className="p-4 text-right">
                               <div className="flex justify-end gap-2 sm:gap-3">
@@ -658,7 +664,7 @@ export default function PanelAdminPage() {
           {/* CASILLAS CONCEPTUALES ADAPTABLES */}
           {activeTab === 'rentas' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
-              <div className="text-3xl md:text-4xl">🔑</div>
+              <div className="text-blue-900 mx-auto flex justify-center"><Key className="w-10 h-10" /></div>
               <h3 className="text-base md:text-lg font-bold text-slate-900">Control de Alquileres (Rentas)</h3>
               <p className="text-xs md:text-sm text-slate-400">Aquí se desplegarán las solicitudes y reservas de vehículos en modalidad de renta que los usuarios agenden a través de la web.</p>
             </div>
@@ -666,7 +672,7 @@ export default function PanelAdminPage() {
 
           {activeTab === 'clientes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
-              <div className="text-3xl md:text-4xl">👥</div>
+              <div className="text-blue-900 mx-auto flex justify-center"><Users className="w-10 h-10" /></div>
               <h3 className="text-base md:text-lg font-bold text-slate-900">Directorio de Clientes Registrados</h3>
               <p className="text-xs md:text-sm text-slate-400">Base de datos de perfiles que se registren en la plataforma, con sus números de teléfono y ciudades.</p>
             </div>
@@ -674,7 +680,7 @@ export default function PanelAdminPage() {
 
           {activeTab === 'ajustes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
-              <div className="text-3xl md:text-4xl">⚙️</div>
+              <div className="text-blue-900 mx-auto flex justify-center"><Settings className="w-10 h-10" /></div>
               <h3 className="text-base md:text-lg font-bold text-slate-900">Configuración del Portal</h3>
               <p className="text-xs md:text-sm text-slate-400">Control de asesores de ventas activos, sucursales y parámetros generales del sitio.</p>
             </div>

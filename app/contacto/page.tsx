@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { MapPin, Phone, Mail, Printer } from 'lucide-react';
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -62,21 +63,21 @@ export default function ContactoPage() {
             <h3 className="text-lg font-bold text-slate-900 mb-3">Su Auto Honduras</h3>
             <ul className="space-y-3.5 text-sm">
               <li className="flex items-start gap-3">
-                <span className="text-blue-600 mt-0.5">📍</span>
+                <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
                 <span>2 Cll 8 y 9 Ave Guamilito, San Pedro Sula</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="text-blue-600">📞</span>
+                <Phone className="w-5 h-5 text-blue-600" />
                 <span>(504) 2570-0962</span>
               </li>
               <li className="flex items-center gap-3">
-                <span className="text-blue-600">✉️</span>
+                <Mail className="w-5 h-5 text-blue-600" />
                 <a href="mailto:contacto@suautohonduras.com" className="hover:underline text-blue-600 font-medium">
                   contacto@suautohonduras.com
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <span className="text-blue-600">📠</span>
+                <Printer className="w-5 h-5 text-blue-600" />
                 <span>Fax: (504) 2570-0962</span>
               </li>
             </ul>

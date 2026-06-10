@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
+import { CarFront, Calendar, Fuel, ClipboardList, Mail, MessageCircle, X } from 'lucide-react';
 
 export default function VehiculoDetailPage() {
   const { id } = useParams();
@@ -16,6 +17,9 @@ export default function VehiculoDetailPage() {
   
   // Estado para controlar las pestañas inferiores de la imagen image_f0d6e2.jpg
   const [activeSubTab, setActiveSubTab] = useState<'detalles' | 'contacto'>('detalles');
+  
+  // Estado para el Lightbox de la galería
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchVehicleData() {
@@ -84,11 +88,14 @@ export default function VehiculoDetailPage() {
         
         {/* Columna Izquierda: Contenedor Multimedia Principal */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs">
+          <div 
+            className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs cursor-pointer group"
+            onClick={() => setSelectedImage(vehicle.featuredImage)}
+          >
             <img 
               src={vehicle.featuredImage} 
               alt={vehicle.title} 
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500"
             />
           </div>
           
@@ -114,9 +121,9 @@ export default function VehiculoDetailPage() {
 
           {/* Encabezado Rápido de Ficha */}
           <div className="px-5 pt-2 grid grid-cols-3 gap-2 text-center text-xs font-bold uppercase text-slate-700 bg-slate-50/40 py-2 border-b">
-            <div className="flex items-center justify-center gap-1">🚘 {vehicle.brand}</div>
-            <div className="flex items-center justify-center gap-1">📅 {vehicle.year}</div>
-            <div className="flex items-center justify-center gap-1">⛽ {vehicle.fuels?.join(', ') || 'Gasolina'}</div>
+            <div className="flex items-center justify-center gap-1"><CarFront className="w-4 h-4 text-slate-500" /> {vehicle.brand}</div>
+            <div className="flex items-center justify-center gap-1"><Calendar className="w-4 h-4 text-slate-500" /> {vehicle.year}</div>
+            <div className="flex items-center justify-center gap-1"><Fuel className="w-4 h-4 text-slate-500" /> {vehicle.fuels?.join(', ') || 'Gasolina'}</div>
           </div>
 
           {/* Tabla Desglosada con Estilo de Filas Grises Intercaladas */}
@@ -168,19 +175,19 @@ export default function VehiculoDetailPage() {
         <div className="md:col-span-2 flex flex-row md:flex-col gap-1 text-xs font-bold uppercase tracking-wider">
           <button 
             onClick={() => setActiveSubTab('detalles')}
-            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer ${
+            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 ${
               activeSubTab === 'detalles' ? 'bg-blue-900 text-white border-blue-900' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
             }`}
           >
-            📋 Detalles
+            <ClipboardList className="w-4 h-4" /> Detalles
           </button>
           <button 
             onClick={() => setActiveSubTab('contacto')}
-            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer ${
+            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 ${
               activeSubTab === 'contacto' ? 'bg-blue-900 text-white border-blue-900' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
             }`}
           >
-            ✉️ Contáctenos
+            <Mail className="w-4 h-4" /> Contáctenos
           </button>
         </div>
 
@@ -234,7 +241,7 @@ export default function VehiculoDetailPage() {
           ) : (
             /* Panel Rápido de Contacto por WhatsApp */
             <div className="text-center py-6 space-y-4 max-w-md mx-auto">
-              <span className="text-3xl">💬</span>
+              <span className="text-blue-900 mx-auto flex justify-center"><MessageCircle className="w-10 h-10" /></span>
               <h4 className="text-base font-bold text-slate-900">¿Deseas financiamiento o una prueba de manejo?</h4>
               <p className="text-xs text-slate-500">Presiona el botón de abajo para iniciar una conversación instantánea con nuestro asesor asignado en San Pedro Sula.</p>
               <a 
@@ -252,8 +259,29 @@ export default function VehiculoDetailPage() {
 
       {/* 📄 Nota de Deslinde Legal Inferior */}
       <div className="text-center text-[11px] text-slate-400 italic pt-4">
-        Precios sujetos a cambio. Por favor vea nuestra <span className="underline cursor-pointer">Política de Privacidad</span> para más info.
+        Precios sujetos a cambio. Por favor vea nuestra <Link href="/politica" className="underline hover:text-blue-600 transition">Política de Privacidad</Link> para más info.
       </div>
+
+      {/* 🖼️ Lightbox Overlay para Galería */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white hover:text-red-500 transition cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img 
+            src={selectedImage} 
+            alt="Vista Ampliada" 
+            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
 
     </div>
   );
