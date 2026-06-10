@@ -2,24 +2,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/AuthContext';
 import { Vehicle } from '@/types/vehicle';
-import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
-import { CarFront, Calendar, Fuel, ClipboardList, Mail, MessageCircle, X } from 'lucide-react';
+import Link from 'next/link';
+import { 
+  Heart, 
+  MessageCircle, 
+  ChevronRight, 
+  Car, 
+  Calendar, 
+  Fuel, 
+  FileText, 
+  User, 
+  ShieldCheck, 
+  Compass 
+} from 'lucide-react';
 
 export default function VehiculoDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [loading, setLoading] = useState(true);
-  
-  // Estado para controlar las pestañas inferiores de la imagen image_f0d6e2.jpg
   const [activeSubTab, setActiveSubTab] = useState<'detalles' | 'contacto'>('detalles');
   
-  // Estado para el Lightbox de la galería
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  // 💻 Estado Local de Favoritos
+  const [isFavorito, setIsFavorito] = useState(false);
+
+  // Clave de almacenamiento ligada al correo del usuario para evitar mezclas
+  const storageKey = user ? `favs_${user.email}` : 'favs_anonymous';
 
   useEffect(() => {
     async function fetchVehicleData() {
@@ -42,6 +58,35 @@ export default function VehiculoDetailPage() {
     fetchVehicleData();
   }, [id]);
 
+  // 🔄 Efecto secundario para leer si este auto específico ya está guardado en localStorage
+  useEffect(() => {
+    if (!id) return;
+    const favs = JSON.parse(localStorage.getItem(storageKey) || '[]') as string[];
+    setIsFavorito(favs.includes(id as string));
+  }, [id, storageKey]);
+
+  // ❤️ Manejador del botón Favoritos
+  const handleFavoritoToggle = () => {
+    if (!user) {
+      // Si no ha iniciado sesión, lo obligamos a loguearse para registrar sus favoritos
+      router.push('/login');
+      return;
+    }
+
+    const favs = JSON.parse(localStorage.getItem(storageKey) || '[]') as string[];
+    let nuevosFavs: string[];
+
+    if (favs.includes(id as string)) {
+      nuevosFavs = favs.filter(favId => favId !== id);
+      setIsFavorito(false);
+    } else {
+      nuevosFavs = [...favs, id as string];
+      setIsFavorito(true);
+    }
+
+    localStorage.setItem(storageKey, JSON.stringify(nuevosFavs));
+  };
+
   if (loading) {
     return <div className="p-12 text-center text-slate-500 text-sm">Cargando ficha técnica del vehículo...</div>;
   }
@@ -57,25 +102,25 @@ export default function VehiculoDetailPage() {
     );
   }
 
-  // Crear link de WhatsApp automatizado con el asesor asignado
-  const mensajeWhatsApp = encodeURIComponent(`Hola, estoy interesado en el vehículo ${vehicle.title || `${vehicle.brand} ${vehicle.modelName}`} de precio ${formatPrice(vehicle.price)} que vi en su sitio web.`);
+  // Enlace automatizado de WhatsApp con el asesor asignado
+  const mensajeWhatsApp = encodeURIComponent(`Hola, estoy interesado en el vehículo ${vehicle.title || `${vehicle.brand} ${vehicle.modelName}`} de precio ${vehicle.price} que vi en su sitio web.`);
   const urlWhatsApp = `https://wa.me/50425700962?text=${mensajeWhatsApp}`;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 text-slate-800 space-y-8">
       
       {/* 🧭 Breadcrumbs (Migas de Pan) */}
-      <nav className="text-xs text-slate-400 space-x-2 uppercase tracking-wider">
+      <nav className="text-xs text-slate-400 flex items-center gap-2 uppercase tracking-wider">
         <Link href="/" className="hover:underline">Comprar y Vender Su Auto</Link>
-        <span>/</span>
+        <ChevronRight className="w-3 h-3" />
         <Link href="/" className="hover:underline">Vehículos</Link>
-        <span>/</span>
-        <span className="text-slate-600 font-medium truncate max-w-[250px] inline-block align-bottom">
+        <ChevronRight className="w-3 h-3" />
+        <span className="text-slate-600 font-medium truncate max-w-[200px] sm:max-w-none">
           {vehicle.title || `${vehicle.brand} ${vehicle.modelName}`}
         </span>
       </nav>
 
-      {/* 🔤 Encabezado Principal de Título y Precio */}
+      {/* 🔤 Título Principal de la página e Identificadores */}
       <div className="space-y-1">
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight flex flex-wrap gap-2 items-baseline">
           <span className="text-blue-900 font-extrabold">{formatPrice(vehicle.price)}</span>
@@ -83,23 +128,20 @@ export default function VehiculoDetailPage() {
         </h1>
       </div>
 
-      {/* 📊 GRID SUPERIOR DE DOS COLUMNAS */}
+      {/* 📊 GRID SUPERIOR DE DOS COLUMNAS DE LA CAPTURA */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Columna Izquierda: Contenedor Multimedia Principal */}
+        {/* Columna Izquierda: Galería de Imágenes */}
         <div className="lg:col-span-7 space-y-4">
-          <div 
-            className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs cursor-pointer group"
-            onClick={() => setSelectedImage(vehicle.featuredImage)}
-          >
+          <div className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs">
             <img 
               src={vehicle.featuredImage} 
               alt={vehicle.title} 
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition duration-500"
+              className="w-full h-full object-cover object-center"
             />
           </div>
           
-          {/* Carrusel/Miniaturas de ángulos alternos si existen */}
+          {/* Miniaturas de ángulos secundarios */}
           {vehicle.galleryImages && Object.values(vehicle.galleryImages).some(url => url !== '') && (
             <div className="grid grid-cols-5 gap-2">
               {Object.entries(vehicle.galleryImages).map(([key, url]) => url && (
@@ -111,22 +153,33 @@ export default function VehiculoDetailPage() {
           )}
         </div>
 
-        {/* Columna Derecha: Bloque Técnico e Identificadores */}
+        {/* Columna Derecha: Bloque Técnico e Indicadores */}
         <div className="lg:col-span-5 space-y-4 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          {/* Barra de utilidades superiores de la captura */}
-          <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
-            <span className="text-emerald-600">FAVORITOS 0</span>
-            <button className="text-blue-600 hover:underline cursor-pointer">Agregar a Favoritos &gt;</button>
+          
+          {/* 🌟 BARRA DINÁMICA DE FAVORITOS */}
+          <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+            <span className={isFavorito ? "text-red-600" : "text-slate-500"}>
+              FAVORITOS {isFavorito ? "1" : "0"}
+            </span>
+            <button 
+              onClick={handleFavoritoToggle}
+              className={`flex items-center gap-1 font-bold transition cursor-pointer select-none ${
+                isFavorito ? "text-red-600 hover:text-red-700" : "text-[#67bd45] hover:text-blue-700"
+              }`}
+            >
+              <Heart className={`w-4 h-4 ${isFavorito ? "fill-red-600" : ""}`} />
+              {isFavorito ? "QUITAR DE FAVORITOS" : "AGREGAR A FAVORITOS >"}
+            </button>
           </div>
 
-          {/* Encabezado Rápido de Ficha */}
-          <div className="px-5 pt-2 grid grid-cols-3 gap-2 text-center text-xs font-bold uppercase text-slate-700 bg-slate-50/40 py-2 border-b">
-            <div className="flex items-center justify-center gap-1"><CarFront className="w-4 h-4 text-slate-500" /> {vehicle.brand}</div>
-            <div className="flex items-center justify-center gap-1"><Calendar className="w-4 h-4 text-slate-500" /> {vehicle.year}</div>
-            <div className="flex items-center justify-center gap-1"><Fuel className="w-4 h-4 text-slate-500" /> {vehicle.fuels?.join(', ') || 'Gasolina'}</div>
+          {/* Encabezado Rápido de Ficha de la Captura */}
+          <div className="px-5 grid grid-cols-3 gap-2 text-center text-xs font-bold uppercase text-slate-700 bg-slate-50/40 py-3 border-b">
+            <div className="flex items-center justify-center gap-1.5"><Car className="w-4 h-4 text-slate-500" /> {vehicle.brand}</div>
+            <div className="flex items-center justify-center gap-1.5"><Calendar className="w-4 h-4 text-slate-500" /> {vehicle.year}</div>
+            <div className="flex items-center justify-center gap-1.5"><Fuel className="w-4 h-4 text-slate-500" /> {vehicle.fuels?.join(', ') || 'Gasolina'}</div>
           </div>
 
-          {/* Tabla Desglosada con Estilo de Filas Grises Intercaladas */}
+          {/* Tabla Desglosada con Filas Grises Intercaladas */}
           <div className="divide-y divide-slate-100 text-xs sm:text-sm">
             <div className="grid grid-cols-2 p-3 bg-slate-50/60">
               <span className="font-semibold text-slate-500">Asesor:</span>
@@ -141,7 +194,7 @@ export default function VehiculoDetailPage() {
               <span className="text-slate-800 font-medium text-right md:text-left">{vehicle.transmissions?.join(', ')}</span>
             </div>
             <div className="grid grid-cols-2 p-3">
-              <span className="font-semibold toughness-medium text-slate-500">Motor:</span>
+              <span className="font-semibold text-slate-500">Motor:</span>
               <span className="text-slate-800 font-medium text-right md:text-left">{vehicle.engine}</span>
             </div>
             <div className="grid grid-cols-2 p-3 bg-slate-50/60">
@@ -154,7 +207,7 @@ export default function VehiculoDetailPage() {
             </div>
             <div className="grid grid-cols-2 p-3 bg-slate-50/60">
               <span className="font-semibold text-slate-500">Ubicación:</span>
-              <span className="text-slate-800 font-bold text-blue-900 text-right md:text-left">San Pedro Sula</span>
+              <span className="text-blue-900 font-bold text-right md:text-left">San Pedro Sula</span>
             </div>
             <div className="grid grid-cols-2 p-3">
               <span className="font-semibold text-slate-500">Condición:</span>
@@ -171,30 +224,29 @@ export default function VehiculoDetailPage() {
       {/* 🗂️ SECCIÓN INFERIOR DE PESTAÑAS (TABS MENÚ) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-6 border-t border-slate-200">
         
-        {/* Selector de Pestañas Vertical (Columna Izquierda Corta) */}
+        {/* Selector de Pestañas Vertical */}
         <div className="md:col-span-2 flex flex-row md:flex-col gap-1 text-xs font-bold uppercase tracking-wider">
           <button 
             onClick={() => setActiveSubTab('detalles')}
-            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 ${
+            className={`flex-1 md:flex-none p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 font-bold ${
               activeSubTab === 'detalles' ? 'bg-blue-900 text-white border-blue-900' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
             }`}
           >
-            <ClipboardList className="w-4 h-4" /> Detalles
+            <FileText className="w-4 h-4" /> Detalles
           </button>
           <button 
             onClick={() => setActiveSubTab('contacto')}
-            className={`flex-1 md:flex-none text-left p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 ${
+            className={`flex-1 md:flex-none p-3.5 rounded-lg border transition cursor-pointer flex items-center gap-2 font-bold ${
               activeSubTab === 'contacto' ? 'bg-blue-900 text-white border-blue-900' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border-slate-200'
             }`}
           >
-            <Mail className="w-4 h-4" /> Contáctenos
+            <User className="w-4 h-4" /> Contáctenos
           </button>
         </div>
 
-        {/* Panel del Contenido de la Pestaña Activa */}
+        {/* Panel contenedor del equipamiento técnico */}
         <div className="md:col-span-10 bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
           {activeSubTab === 'detalles' ? (
-            /* Subgrilla de Equipamientos */
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-xs sm:text-sm">
               
               {/* Características Interior */}
@@ -241,7 +293,7 @@ export default function VehiculoDetailPage() {
           ) : (
             /* Panel Rápido de Contacto por WhatsApp */
             <div className="text-center py-6 space-y-4 max-w-md mx-auto">
-              <span className="text-blue-900 mx-auto flex justify-center"><MessageCircle className="w-10 h-10" /></span>
+              <div className="text-emerald-500 mx-auto flex justify-center"><MessageCircle className="w-10 h-10" /></div>
               <h4 className="text-base font-bold text-slate-900">¿Deseas financiamiento o una prueba de manejo?</h4>
               <p className="text-xs text-slate-500">Presiona el botón de abajo para iniciar una conversación instantánea con nuestro asesor asignado en San Pedro Sula.</p>
               <a 
@@ -258,30 +310,9 @@ export default function VehiculoDetailPage() {
       </div>
 
       {/* 📄 Nota de Deslinde Legal Inferior */}
-      <div className="text-center text-[11px] text-slate-400 italic pt-4">
-        Precios sujetos a cambio. Por favor vea nuestra <Link href="/politica" className="underline hover:text-blue-600 transition">Política de Privacidad</Link> para más info.
+      <div className="text-center text-[11px] text-slate-400 italic pt-4 flex items-center justify-center gap-1">
+        <ShieldCheck className="w-3.5 h-3.5 text-slate-400 inline" /> Precios sujetos a cambio. Por favor vea nuestra <Link href="/politica-de-privacidad" className="underline">Política de Privacidad</Link> para más info.
       </div>
-
-      {/* 🖼️ Lightbox Overlay para Galería */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button 
-            className="absolute top-4 right-4 text-white hover:text-red-500 transition cursor-pointer"
-            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
-          >
-            <X className="w-8 h-8" />
-          </button>
-          <img 
-            src={selectedImage} 
-            alt="Vista Ampliada" 
-            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
 
     </div>
   );
