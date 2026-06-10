@@ -9,6 +9,7 @@ import { db, storage } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import { Vehicle } from '@/types/vehicle';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
@@ -374,7 +375,9 @@ export default function PanelAdminPage() {
       <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 flex-shrink-0">
         <div className="flex flex-col">
           <div className="p-6 border-b border-slate-800 bg-slate-950 flex justify-center">
-            <Image src="/logo-white.png" alt="Su Auto Honduras" width={180} height={50} className="h-10 w-auto object-contain" priority />
+            <Link href="/">
+              <Image src="/logo-white.png" alt="Su Auto Honduras" width={180} height={50} className="h-10 w-auto object-contain" priority />
+            </Link>
           </div>
 
           <nav className="p-4 space-y-1.5">

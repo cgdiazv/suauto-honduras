@@ -1,6 +1,32 @@
 /* src/app/globals.css */
 @import "tailwindcss";
 
+@theme {
+  --color-blue-50: #eef5fa;
+  --color-blue-100: #d9eaf5;
+  --color-blue-200: #b9d7eb;
+  --color-blue-300: #8abfde;
+  --color-blue-400: #54a0ce;
+  --color-blue-500: #3184b9;
+  --color-blue-600: #004582;
+  --color-blue-700: #00396b;
+  --color-blue-800: #002c54;
+  --color-blue-900: #001f3d;
+  --color-blue-950: #001326;
+
+  --color-secondary-50: #f4fbf1;
+  --color-secondary-100: #e5f5df;
+  --color-secondary-200: #ccebc1;
+  --color-secondary-300: #a5da95;
+  --color-secondary-400: #7bc566;
+  --color-secondary-500: #67bd45;
+  --color-secondary-600: #4b9231;
+  --color-secondary-700: #3b7428;
+  --color-secondary-800: #315c23;
+  --color-secondary-900: #2a4c1f;
+  --color-secondary-950: #132a0d;
+}
+
 :root {
   --foreground-rgb: 15, 23, 42; /* Slate 900 */
   --background-start-rgb: 248, 250, 252; /* Slate 50 */

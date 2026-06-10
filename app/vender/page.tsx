@@ -124,7 +124,7 @@ export default function VenderVehiculo() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Completo *</label>
-              <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-hidden focus:ring-2 focus:ring-blue-500" placeholder="Ej. Carlos Diaz" />
+              <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-hidden focus:ring-2 focus:ring-blue-500" placeholder="Ej. Juan Pérez" />
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">Número de Teléfono / WhatsApp *</label>
@@ -233,7 +233,7 @@ export default function VenderVehiculo() {
             {isSending ? (
               <>⏳ Enviando Propuesta...</>
             ) : (
-              <>Enviar Datos a Tasación &rarr;</>
+              <>Enviar Datos a Su Auto &rarr;</>
             )}
           </button>
         </div>

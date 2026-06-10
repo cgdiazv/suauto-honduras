@@ -1,58 +1,139 @@
-// src/app/page.tsx
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+// app/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
 
-// Fetching live vehicles data directamente en el server
-async function getLiveVehicles(): Promise<Vehicle[]> {
-  try {
-    const q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'), limit(12));
-    const querySnapshot = await getDocs(q);
-    
-    const vehicles: Vehicle[] = [];
-    querySnapshot.forEach((doc) => {
-      vehicles.push({ id: doc.id, ...doc.data() } as Vehicle);
-    });
-    return vehicles;
-  } catch (error) {
-    console.error("Error fetching live inventory from Firestore:", error);
-    return [];
-  }
-}
+export default function Home() {
+  const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
+  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function Home() {
-  const liveVehicles = await getLiveVehicles();
+  // Estados de los Selectores de Búsqueda
+  const [selectedBrand, setSelectedBrand] = useState('Todas las Marcas');
+  const [selectedType, setSelectedType] = useState('Tipo de Vehículo');
+  const [selectedTransmission, setSelectedTransmission] = useState('Transmisión');
+
+  // Listas de opciones dinámicas extraídas del Stock Real
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
+  const [availableTransmissions, setAvailableTransmissions] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchInventory() {
+      try {
+        const q = query(collection(db, 'vehicles'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const vehicles: Vehicle[] = [];
+        
+        const brandsSet = new Set<string>();
+        const typesSet = new Set<string>();
+        const transSet = new Set<string>();
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data() as Vehicle;
+          const vehicleWithId = { id: doc.id, ...data };
+          vehicles.push(vehicleWithId);
+
+          // Alimentar catálogos dinámicos
+          if (data.brand) brandsSet.add(data.brand);
+          data.types?.forEach(t => typesSet.add(t));
+          data.transmissions?.forEach(t => transSet.add(t));
+        });
+
+        setAllVehicles(vehicles);
+        setFilteredVehicles(vehicles); // Por defecto muestra todo el stock
+        
+        setAvailableBrands(Array.from(brandsSet).sort());
+        setAvailableTypes(Array.from(typesSet).sort());
+        setAvailableTransmissions(Array.from(transSet).sort());
+      } catch (error) {
+        console.error("Error cargando inventario en el cliente:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchInventory();
+  }, []);
+
+  // 🔥 Función de Filtrado Ejecutada al dar clic en "Buscar Auto"
+  const handleSearch = () => {
+    let result = [...allVehicles];
+
+    if (selectedBrand !== 'Todas las Marcas') {
+      result = result.filter(car => car.brand === selectedBrand);
+    }
+
+    if (selectedType !== 'Tipo de Vehículo') {
+      result = result.filter(car => car.types?.includes(selectedType));
+    }
+
+    if (selectedTransmission !== 'Transmisión') {
+      result = result.filter(car => car.transmissions?.includes(selectedTransmission));
+    }
+
+    setFilteredVehicles(result);
+  };
 
   return (
     <div className="space-y-12 pb-16">
       {/* Hero Section */}
       <section 
-  className="relative bg-cover bg-center py-24 px-4 text-white text-center"
-  style={{ 
-    backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85)), url('/hero-suauto.png')` 
-  }}
->
-  <div className="mx-auto max-w-4xl space-y-6 relative z-10">
-    <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl drop-shadow-md">
-      Encuentra tu próximo vehículo en San Pedro Sula
-    </h1>
-    <p className="text-xl text-blue-100 max-w-2xl mx-auto drop-shadow-xs">
-      Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento.
-    </p>
+        className="relative bg-cover bg-center py-24 px-4 text-white text-center"
+        style={{ 
+          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85)), url('/hero-suauto.png')` 
+        }}
+      >
+        <div className="mx-auto max-w-4xl space-y-6 relative z-10">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl drop-shadow-md">
+            Encuentra tu próximo vehículo en San Pedro Sula
+          </h1>
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto drop-shadow-xs">
+            Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento.
+          </p>
           
-          {/* Custom Tailwind v4 Filter Inputs */}
+          {/* Contenedor de Filtros Conectado al Estado Reactivo */}
           <div className="mx-auto mt-10 max-w-3xl rounded-xl bg-white p-4 shadow-xl text-slate-800 grid grid-cols-1 gap-4 sm:grid-cols-4 items-center">
-            <select className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
-              <option>Todas las Marcas</option>
+            
+            {/* Selector de Marcas */}
+            <select 
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
+            >
+              <option value="Todas las Marcas">Todas las Marcas</option>
+              {availableBrands.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
-            <select className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
-              <option>Tipo de Vehículo</option>
+
+            {/* Selector de Tipos */}
+            <select 
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
+            >
+              <option value="Tipo de Vehículo">Tipo de Vehículo</option>
+              {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            <select className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 focus:outline-hidden focus:ring-2 focus:ring-blue-500">
-              <option>Transmisión</option>
+
+            {/* Selector de Transmisiones */}
+            <select 
+              value={selectedTransmission}
+              onChange={(e) => setSelectedTransmission(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
+            >
+              <option value="Transmisión">Transmisión</option>
+              {availableTransmissions.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            <button className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition">
+
+            {/* Botón de Acción */}
+            <button 
+              onClick={handleSearch}
+              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition cursor-pointer"
+            >
               Buscar Auto
             </button>
           </div>
@@ -65,19 +146,35 @@ export default async function Home() {
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
             Inventario Disponible
           </h2>
-          <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-            Mostrando Recientes
-          </span>
+          {filteredVehicles.length !== allVehicles.length && (
+  <button 
+    onClick={() => {
+      setSelectedBrand('Todas las Marcas');
+      setSelectedType('Tipo de Vehículo');
+      setSelectedTransmission('Transmisión');
+      setFilteredVehicles(allVehicles);
+    }}
+    className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition flex items-center gap-1 cursor-pointer"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+    Limpiar Filtros
+  </button>
+)}
         </div>
 
-        {/* Dynamic Display Grid */}
-        {liveVehicles.length === 0 ? (
+        {/* Mapeo del Estado Filtrado */}
+        {loading ? (
+          <div className="p-12 text-center text-slate-400 text-sm">Buscando en el stock de Su Auto...</div>
+        ) : filteredVehicles.length === 0 ? (
           <div className="mt-12 text-center text-slate-500 py-12 border rounded-xl border-dashed bg-white">
-            <p className="font-semibold text-lg">No hay vehículos para mostrar por el momento.</p>
+            <p className="font-semibold text-lg">No encontramos vehículos que coincidan con esos filtros.</p>
+            <p className="text-sm text-slate-400 mt-1">Intenta restablecer los selectores para ver más opciones disponibles.</p>
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
-            {liveVehicles.map((vehicle) => (
+          <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+            {filteredVehicles.map((vehicle) => (
               <div key={vehicle.id} className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition">
                 
                 {/* Image Wrap */}
@@ -105,7 +202,7 @@ export default async function Home() {
                         {vehicle.title || `${vehicle.brand} ${vehicle.modelName} (${vehicle.year})`}
                       </Link>
                     </h3>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 line-clamp-1">
                       Motor {vehicle.engine} • {vehicle.transmissions?.join(', ')} • {vehicle.types?.join(', ')}
                     </p>
                   </div>
