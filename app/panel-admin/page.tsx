@@ -304,8 +304,8 @@ export default function PanelAdminPage() {
 
   const renderMediaField = (label: string, fieldKey: string, currentUrl: string, setUrlState: (url: string) => void) => {
     const progress = uploadProgress[fieldKey] || 0;
-    // 🔥 Detectamos si el archivo se está transmitiendo en este momento
-    const isUploading = progress > 0 && progress < 100;
+    // 🔥 Detectamos si el archivo se está transmitiendo y aún no tenemos la URL final
+    const isUploading = progress > 0 && !currentUrl;
 
     return (
       <div className="flex flex-col space-y-2 border border-slate-200 p-3 rounded-xl bg-slate-50/50">
@@ -330,7 +330,7 @@ export default function PanelAdminPage() {
           /* VISTA 2: ESTADO DE CARGA ACTIVO (¡NUEVO!) */
           <div className="relative flex flex-col items-center justify-center border-2 border-blue-300 rounded-lg p-6 bg-blue-50/30 animate-pulse min-h-[100px]">
             <span className="text-xs font-bold text-blue-700 flex items-center gap-1.5">
-              ⏳ Subiendo...
+              {progress === 100 ? '⏳ Procesando...' : '⏳ Subiendo...'}
             </span>
             <span className="text-lg font-black text-blue-900 mt-1">{progress}%</span>
             <div className="w-full bg-slate-200 rounded-full h-2 mt-3 max-w-[180px]">
@@ -343,20 +343,21 @@ export default function PanelAdminPage() {
         ) : (
           /* VISTA 3: CUADRO POR DEFECTO PARA SELECCIONAR */
           <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-lg p-4 bg-white hover:bg-slate-50 transition cursor-pointer min-h-[100px]">
-            <input 
-              type="file" 
-              accept="image/*" 
-              onChange={(e) => { 
-                if(e.target.files?.[0]) {
-                  // Cambiamos el progreso a 1% inmediatamente para gatillar el estado de "Subiendo"
-                  setUploadProgress(prev => ({ ...prev, [fieldKey]: 1 }));
-                  uploadFileHandler(e.target.files[0], fieldKey, setUrlState); 
-                }
-              }} 
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" 
-            />
-            <span className="text-xs font-semibold text-blue-600">📸 Cargar Foto</span>
-          </div>
+  <input 
+    type="file" 
+    accept="image/*" 
+    onChange={(e) => { 
+      if (e.target.files?.[0]) {
+        // 🔥 Llamamos directo a la función sin interrumpir el renderizado
+        uploadFileHandler(e.target.files[0], fieldKey, setUrlState); 
+        // 🔥 Limpiar el input para permitir volver a seleccionar la misma imagen si hubo error
+        e.target.value = '';
+      }
+    }} 
+    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10" 
+  />
+  <span className="text-xs font-semibold text-blue-600">📸 Cargar Foto</span>
+</div>
         )}
       </div>
     );
@@ -373,7 +374,7 @@ export default function PanelAdminPage() {
       <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between border-r border-slate-800 flex-shrink-0">
         <div className="flex flex-col">
           <div className="p-6 border-b border-slate-800 bg-slate-950 flex justify-center">
-            <Image src="/logo.webp" alt="Su Auto Honduras" width={180} height={50} className="h-10 w-auto object-contain" priority />
+            <Image src="/logo-white.png" alt="Su Auto Honduras" width={180} height={50} className="h-10 w-auto object-contain" priority />
           </div>
 
           <nav className="p-4 space-y-1.5">
