@@ -22,7 +22,6 @@ export default function Header() {
         <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
           <Link href="/vender" className="hover:text-blue-600 transition">Vender Vehículo</Link>
           <Link href="/rentar" className="hover:text-blue-600 transition">Rentar Vehículo</Link>
-          <Link href="/taller" className="hover:text-blue-600 transition">Taller</Link>
           <Link href="/noticias" className="hover:text-blue-600 transition">Noticias</Link>
           <Link href="/contacto" className="hover:text-blue-600 transition">Contáctenos</Link>
         </nav>
