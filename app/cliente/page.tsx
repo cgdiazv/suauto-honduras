@@ -9,7 +9,7 @@ import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
 import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
-import { Car, Key, Trash2, ChevronRight, HeartCrack } from 'lucide-react';
+import { Car, Key, Trash2, ChevronRight, HeartCrack, Settings, LogOut } from 'lucide-react';
 
 export default function ClienteDashboard() {
   const { user, logout, loading: authLoading } = useAuth();
@@ -89,17 +89,27 @@ export default function ClienteDashboard() {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
       
       {/* Cabecera del Dashboard */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-5">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Mi Espacio Su Auto</h1>
-          <p className="text-sm text-slate-500 mt-1">Bienvenido a su portal, {user.email}</p>
+      <div className="flex flex-row items-center justify-between border-b border-slate-200 pb-5 gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 truncate">Mi Espacio</h1>
+          <p className="text-sm text-slate-500 mt-1 truncate">Bienvenido, {user.email}</p>
         </div>
-        <button 
-          onClick={() => { logout(); router.push('/login'); }} 
-          className="hidden sm:block rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 cursor-pointer transition"
-        >
-          Cerrar Sesión
-        </button>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <Link 
+            href="/cliente/editar"
+            title="Editar Cuenta"
+            className="rounded-full bg-blue-50 p-2.5 text-blue-600 hover:bg-blue-100 hover:text-blue-700 transition"
+          >
+            <Settings className="w-5 h-5" />
+          </Link>
+          <button 
+            onClick={() => { logout(); router.push('/login'); }} 
+            title="Cerrar Sesión"
+            className="rounded-full bg-red-50 p-2.5 text-red-600 hover:bg-red-100 hover:text-red-700 cursor-pointer transition"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* 📊 GRID DE DOS COLUMNAS RESPONSIVO */}
@@ -181,15 +191,6 @@ export default function ClienteDashboard() {
 
       </div>
 
-      {/* Botón de Cerrar Sesión en Móvil (Solo visible en móviles) */}
-      <div className="sm:hidden mt-8">
-        <button 
-          onClick={() => { logout(); router.push('/login'); }} 
-          className="w-full rounded-lg bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-200 cursor-pointer transition"
-        >
-          Cerrar Sesión
-        </button>
-      </div>
     </div>
   );
 }

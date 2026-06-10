@@ -5,10 +5,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X, CircleDollarSign, Key, Newspaper, Mail } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
   // Estado para controlar la apertura del Drawer móvil
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
+
+  const isAdmin = user?.email === 'contacto@suautohonduras.com';
 
   const toggleDrawer = () => setIsOpen(!isOpen);
   const closeDrawer = () => setIsOpen(false);
@@ -39,13 +43,27 @@ export default function Header() {
 
           {/* Botón de Entrada (Escritorio) y Hamburguesa (Móvil) */}
           <div className="flex items-center space-x-4">
-            <Link 
-              href="/login" 
-              className="hidden sm:inline-block rounded-lg bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 transition"
-              onClick={closeDrawer}
-            >
-              Ingresar
-            </Link>
+            {user ? (
+              <Link 
+                href={isAdmin ? "/panel-admin" : "/cliente"} 
+                className={`hidden sm:inline-block rounded-lg px-5 py-2 text-sm font-semibold transition ${
+                  isAdmin 
+                    ? "bg-blue-50 text-blue-600 hover:bg-blue-100" 
+                    : "bg-[#67bd45]/10 text-[#67bd45] hover:bg-[#67bd45]/20"
+                }`}
+                onClick={closeDrawer}
+              >
+                {isAdmin ? "Panel Admin" : "Mi Cuenta"}
+              </Link>
+            ) : (
+              <Link 
+                href="/login" 
+                className="hidden sm:inline-block rounded-lg bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 transition"
+                onClick={closeDrawer}
+              >
+                Ingresar
+              </Link>
+            )}
 
             {/* ☰ Icono de Menú Hamburguesa (Solo Móvil) */}
             <button
@@ -123,13 +141,25 @@ export default function Header() {
               </Link>
               
               <div className="pt-4 border-t border-slate-100">
-                <Link 
-                  href="/login" 
-                  onClick={closeDrawer}
-                  className="w-full flex items-center justify-center rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-xs hover:bg-blue-700 transition"
-                >
-                  Ingresar al Sistema
-                </Link>
+                {user ? (
+                  <Link 
+                    href={isAdmin ? "/panel-admin" : "/cliente"} 
+                    onClick={closeDrawer}
+                    className={`w-full flex items-center justify-center rounded-xl py-3 text-sm font-bold text-white shadow-xs transition ${
+                      isAdmin ? "bg-blue-600 hover:bg-blue-700" : "bg-[#67bd45] hover:bg-[#5ca83e]"
+                    }`}
+                  >
+                    {isAdmin ? "Panel Admin" : "Mi Cuenta"}
+                  </Link>
+                ) : (
+                  <Link 
+                    href="/login" 
+                    onClick={closeDrawer}
+                    className="w-full flex items-center justify-center rounded-xl bg-blue-600 py-3 text-sm font-bold text-white shadow-xs hover:bg-blue-700 transition"
+                  >
+                    Ingresar al Sistema
+                  </Link>
+                )}
               </div>
             </nav>
           </div>
