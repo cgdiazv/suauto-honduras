@@ -4,9 +4,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Vehicle } from '@/types/vehicle';
+import { Rental } from '@/components/RentalsTable';
 import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
 import { Car, Key, Trash2, ChevronRight, HeartCrack, Settings, LogOut } from 'lucide-react';
@@ -18,6 +19,10 @@ export default function ClienteDashboard() {
   // 💻 Estados locales para los favoritos asíncronos
   const [favoriteVehicles, setFavoriteVehicles] = useState<Vehicle[]>([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
+
+  // 📋 Estados locales para las rentas
+  const [rentals, setRentals] = useState<Rental[]>([]);
+  const [loadingRentals, setLoadingRentals] = useState(false);
 
   // Clave de almacenamiento vinculada de forma exacta a la sesión actual
   const storageKey = user ? `favs_${user.email}` : 'favs_anonymous';
@@ -70,7 +75,39 @@ export default function ClienteDashboard() {
     }
   }, [user, storageKey]);
 
-  // 🗑️ Función para eliminar un favorito directamente desde el panel
+  // 🔄 Cargar el historial de rentas del cliente
+  useEffect(() => {
+    async function loadRentals() {
+      if (!user?.email) return;
+      setLoadingRentals(true);
+      try {
+        const q = query(
+          collection(db, 'rentals'), 
+          where('email', '==', user.email)
+        );
+        const querySnapshot = await getDocs(q);
+        const fetchedRentals: Rental[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedRentals.push({ id: doc.id, ...doc.data() } as Rental);
+        });
+        
+        // Ordenar localmente por fecha de creación descendente
+        fetchedRentals.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        
+        setRentals(fetchedRentals);
+      } catch (error) {
+        console.error("Error al recuperar las rentas:", error);
+      } finally {
+        setLoadingRentals(false);
+      }
+    }
+
+    if (user) {
+      loadRentals();
+    }
+  }, [user]);
+
+  // �️ Función para eliminar un favorito directamente desde el panel
   const handleRemoveFavorite = (e: React.MouseEvent, vehicleId: string) => {
     e.preventDefault(); // Evita que el clic dispare la navegación del Link corporativo
     
@@ -177,16 +214,46 @@ export default function ClienteDashboard() {
         </div>
         
         {/* TARJETA 2: DETALLES DE LAS RENTAS DEL CLIENTE */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col space-y-2">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3 mb-2">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col space-y-4">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
             <Key className="w-5 h-5 text-slate-700" /> Detalles de mis Rentas
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 mb-2">
             Historial de solicitudes de alquiler, fechas de recogida/devolución y el estado de validación de sus documentos en tiempo real.
           </p>
-          <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400 italic">
-            Próximamente se listarán aquí los contratos de arrendamiento activos sincronizados con el Panel Admin.
-          </div>
+          
+          {loadingRentals ? (
+            <p className="text-xs text-slate-400 italic py-4 text-center">Sincronizando contratos activos...</p>
+          ) : rentals.length === 0 ? (
+            <div className="mt-2 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400 italic">
+              Aún no ha realizado ninguna solicitud de renta.
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
+              {rentals.map((rental) => (
+                <div key={rental.id} className="flex flex-col p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-bold text-slate-800 text-xs sm:text-sm uppercase">
+                        {rental.vehicleName || 'Vehículo Web'}
+                      </h3>
+                      <p className="text-[10px] text-slate-500 mt-0.5">
+                        {new Date(rental.createdAt || Date.now()).toLocaleDateString('es-HN', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </p>
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${rental.status === 'Aprobada' ? 'bg-[#67bd45] text-white border-[#67bd45]' : rental.status === 'Rechazada' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                      {rental.status || 'Pendiente'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex gap-4 text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-100">
+                    <div><span className="font-bold text-slate-400 block">Entrega</span>{rental.pickupDate}</div>
+                    <div><span className="font-bold text-slate-400 block">Devolución</span>{rental.returnDate}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
