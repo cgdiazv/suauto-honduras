@@ -10,7 +10,7 @@ import { Vehicle } from '@/types/vehicle';
 import { Rental } from '@/components/RentalsTable';
 import { formatPrice } from '@/lib/format';
 import Link from 'next/link';
-import { Car, Key, Trash2, ChevronRight, HeartCrack, Settings, LogOut } from 'lucide-react';
+import { Car, Key, Trash2, ChevronRight, HeartCrack, Settings, LogOut, Loader2, Calendar } from 'lucide-react';
 
 export default function ClienteDashboard() {
   const { user, logout, loading: authLoading } = useAuth();
@@ -34,7 +34,7 @@ export default function ClienteDashboard() {
     }
   }, [user, authLoading, router]);
 
-  // 🔄 Cargar los datos detallados desde Firestore basándonos en los IDs guardados
+  // 🔄 Cargar los datos de vehículos favoritos desde localStorage y Firestore
   useEffect(() => {
     async function loadFavoritesFromFirestore() {
       if (!user) return;
@@ -51,7 +51,6 @@ export default function ClienteDashboard() {
       try {
         const fetchedVehicles: Vehicle[] = [];
         
-        // Ejecutamos las consultas en paralelo para máxima velocidad de respuesta
         await Promise.all(
           favIds.map(async (id) => {
             const docRef = doc(db, 'vehicles', id);
@@ -75,7 +74,7 @@ export default function ClienteDashboard() {
     }
   }, [user, storageKey]);
 
-  // 🔄 Cargar el historial de rentas del cliente
+  // 🔄 Cargar el historial de rentas del cliente (Sincronizado con tus Reglas)
   useEffect(() => {
     async function loadRentals() {
       if (!user?.email) return;
@@ -86,13 +85,18 @@ export default function ClienteDashboard() {
           where('email', '==', user.email)
         );
         const querySnapshot = await getDocs(q);
-        const fetchedRentals: Rental[] = [];
+        const fetchedRentals: any[] = [];
+        
         querySnapshot.forEach((doc) => {
           fetchedRentals.push({ id: doc.id, ...doc.data() } as Rental);
         });
         
-        // Ordenar localmente por fecha de creación descendente
-        fetchedRentals.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        // 🔑 CORRECCIÓN COMPILACIÓN: Añadimos 'as any' para evitar el bloqueo estricto de TypeScript
+        fetchedRentals.sort((a: any, b: any) => {
+          const dateA = a.createdAt || '';
+          const dateB = b.createdAt || '';
+          return dateB.localeCompare(dateA);
+        });
         
         setRentals(fetchedRentals);
       } catch (error) {
@@ -107,9 +111,9 @@ export default function ClienteDashboard() {
     }
   }, [user]);
 
-  // �️ Función para eliminar un favorito directamente desde el panel
+  // 🗑️ Función para eliminar un favorito directamente desde el panel
   const handleRemoveFavorite = (e: React.MouseEvent, vehicleId: string) => {
-    e.preventDefault(); // Evita que el clic dispare la navegación del Link corporativo
+    e.preventDefault(); 
     
     const favIds = JSON.parse(localStorage.getItem(storageKey) || '[]') as string[];
     const nuevosIds = favIds.filter(id => id !== vehicleId);
@@ -152,7 +156,7 @@ export default function ClienteDashboard() {
       {/* 📊 GRID DE DOS COLUMNAS RESPONSIVO */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 items-start">
         
-        {/* TARJETA 1: FAVORITOS Y COTIZACIONES (DINÁMICA) */}
+        {/* TARJETA 1: MIS AUTOS GUARDADOS */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col space-y-4">
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
             <Car className="w-5 h-5 text-slate-700" /> Mis Autos Guardados
@@ -161,7 +165,6 @@ export default function ClienteDashboard() {
           {loadingFavorites ? (
             <p className="text-xs text-slate-400 italic py-4 text-center">Sincronizando inventario guardado...</p>
           ) : favoriteVehicles.length === 0 ? (
-            /* Estado vacío si no hay favoritos en localStorage */
             <div className="text-center py-6 text-slate-400 space-y-2">
               <HeartCrack className="w-8 h-8 mx-auto text-slate-300" />
               <p className="text-sm">Aún no ha guardado ningún vehículo en sus favoritos.</p>
@@ -170,7 +173,6 @@ export default function ClienteDashboard() {
               </Link>
             </div>
           ) : (
-            /* Listado dinámico de vehículos favoritos */
             <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
               {favoriteVehicles.map((car) => (
                 <Link 
@@ -197,7 +199,6 @@ export default function ClienteDashboard() {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                    {/* Botón rápido para remover favoritos */}
                     <button
                       onClick={(e) => handleRemoveFavorite(e, car.id!)}
                       title="Quitar de favoritos"
@@ -218,37 +219,54 @@ export default function ClienteDashboard() {
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
             <Key className="w-5 h-5 text-slate-700" /> Detalles de mis Rentas
           </h2>
-          <p className="text-sm text-slate-500 mb-2">
+          <p className="text-xs sm:text-sm text-slate-500 mb-2">
             Historial de solicitudes de alquiler, fechas de recogida/devolución y el estado de validación de sus documentos en tiempo real.
           </p>
           
           {loadingRentals ? (
-            <p className="text-xs text-slate-400 italic py-4 text-center">Sincronizando contratos activos...</p>
+            <p className="text-xs text-slate-400 italic py-4 text-center flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> Sincronizando contratos activos...
+            </p>
           ) : rentals.length === 0 ? (
             <div className="mt-2 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400 italic">
               Aún no ha realizado ninguna solicitud de renta.
             </div>
           ) : (
             <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin">
-              {rentals.map((rental) => (
-                <div key={rental.id} className="flex flex-col p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-bold text-slate-800 text-xs sm:text-sm uppercase">
-                        {rental.vehicleName || 'Vehículo Web'}
+              {rentals.map((rental: any) => (
+                <div key={rental.id} className="flex flex-col p-4 rounded-xl border border-slate-100 bg-slate-50/50 space-y-3">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-slate-800 text-xs sm:text-sm uppercase truncate">
+                        {rental.vehicleType ? `Renta: ${rental.vehicleType}` : 'Solicitud de Alquiler'}
                       </h3>
-                      <p className="text-[10px] text-slate-500 mt-0.5">
-                        {new Date(rental.createdAt || Date.now()).toLocaleDateString('es-HN', { year: 'numeric', month: 'short', day: 'numeric' })}
+                      <p className="text-[10px] text-slate-400 font-medium mt-0.5 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('es-HN', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
                       </p>
                     </div>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${rental.status === 'Aprobada' ? 'bg-[#67bd45] text-white border-[#67bd45]' : rental.status === 'Rechazada' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                    {/* Badge de Estatus Dinámico */}
+                    <span className={`text-[10px] uppercase px-2.5 py-1 rounded-full font-bold tracking-wider border shrink-0 ${
+                      rental.status === 'Aprobada' 
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' 
+                        : rental.status === 'Rechazada' 
+                        ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                    }`}>
                       {rental.status || 'Pendiente'}
                     </span>
                   </div>
                   
-                  <div className="flex gap-4 text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-100">
-                    <div><span className="font-bold text-slate-400 block">Entrega</span>{rental.pickupDate}</div>
-                    <div><span className="font-bold text-slate-400 block">Devolución</span>{rental.returnDate}</div>
+                  {/* Bloque de Fechas Consolidado */}
+                  <div className="grid grid-cols-2 gap-4 text-xs text-slate-600 bg-white p-2.5 rounded-xl border border-slate-100">
+                    <div>
+                      <span className="font-bold text-slate-400 block text-[9px] uppercase tracking-wider mb-0.5">Entrega</span>
+                      <p className="font-semibold text-slate-700">{rental.pickupDate} <span className="text-slate-400 font-medium">({rental.pickupTime})</span></p>
+                    </div>
+                    <div className="border-l border-slate-100 pl-4">
+                      <span className="font-bold text-slate-400 block text-[9px] uppercase tracking-wider mb-0.5">Devolución</span>
+                      <p className="font-semibold text-slate-700">{rental.returnDate} <span className="text-slate-400 font-medium">({rental.returnTime})</span></p>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -257,7 +275,6 @@ export default function ClienteDashboard() {
         </div>
 
       </div>
-
     </div>
   );
 }
