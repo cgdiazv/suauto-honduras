@@ -64,15 +64,32 @@ export default function RentarVehiculoPage() {
   };
 
   const uploadToFirebase = async (file: File, pathKey: string, setUrl: (url: string) => void) => {
+    if (!user) {
+      alert("Debes iniciar sesión para poder cargar tus documentos.");
+      router.push('/login?redirect=/rentar');
+      return;
+    }
+
     setLoadingFile(prev => ({ ...prev, [pathKey]: true }));
     try {
+      // Creamos la referencia del archivo
       const storageRef = ref(storage, `rentals/${Date.now()}_${pathKey}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
+      
+      // 🔑 Forzamos metadatos explícitos para obligar al SDK a empaquetar el estado de autenticación actual
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          'uploadedBy': user.uid
+        }
+      };
+
+      // Pasamos los metadatos como tercer parámetro en uploadBytes
+      const snapshot = await uploadBytes(storageRef, file, metadata);
       const url = await getDownloadURL(snapshot.ref);
       setUrl(url);
-    } catch (err) {
-      console.error(err);
-      alert("Error subiendo el archivo binario.");
+    } catch (err: any) {
+      console.error("Error crítico en Storage:", err);
+      alert(`Error al subir el archivo: ${err.message || 'Verifica tu conexión.'}`);
     } finally {
       setLoadingFile(prev => ({ ...prev, [pathKey]: false }));
     }
