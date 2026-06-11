@@ -132,12 +132,27 @@ export default function RentarVehiculoPage() {
   // Envío Final Consolidado (Email + Firestore)
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) { alert("Debe aceptar los términos y condiciones de uso."); return; }
+    // 🛡️ Seguridad: Evitar envíos si no está logueado
+    if (!user) {
+      alert("Debes iniciar sesión para poder enviar una solicitud de renta.");
+      return;
+    }
+
+    if (!termsAccepted) { 
+      alert("Debe aceptar los términos y condiciones de uso."); 
+      return; 
+    }
+    
+    // Validar que realmente se hayan subido los documentos obligatorios
+    if (!licenseImg || !idImg || !selfieImg) {
+      alert("Por favor, asegúrate de cargar todos los documentos requeridos (Licencia, Identidad y Selfie) antes de enviar.");
+      return;
+    }
     setIsSending(true);
     setSubmitStatus('idle');
 
     let signatureImgUrl = '';
-    if (canvasRef.current) {
+    if (canvasRef.current) {  
       signatureImgUrl = canvasRef.current.toDataURL('image/png');
     }
 
