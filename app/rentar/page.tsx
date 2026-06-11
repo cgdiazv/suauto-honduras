@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+import { collection, addDoc } from 'firebase/firestore'; // 🔥 Importamos las utilidades de Firestore
+import { storage, db } from '@/lib/firebase'; // 🔥 Importamos la instancia 'db' de tu configuración
 import { 
   Loader2, 
   CheckCircle2, 
@@ -29,7 +30,6 @@ const initialFormData = {
 
 export default function RentarVehiculoPage() {
   const { user } = useAuth();
-  // Campos del Formulario masivo
   const [formData, setFormData] = useState(initialFormData);
 
   // Estado multimedia
@@ -53,7 +53,6 @@ export default function RentarVehiculoPage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Upload genérico a Firebase Storage para agilizar
   const uploadToFirebase = async (file: File, pathKey: string, setUrl: (url: string) => void) => {
     setLoadingFile(prev => ({ ...prev, [pathKey]: true }));
     try {
@@ -69,7 +68,6 @@ export default function RentarVehiculoPage() {
     }
   };
 
-  // Activar Cámara Frontal para Selfie
   const startCamera = async () => {
     setCameraActive(true);
     try {
@@ -93,14 +91,12 @@ export default function RentarVehiculoPage() {
       const dataUrl = canvas.toDataURL('image/jpeg');
       setSelfieImg(dataUrl);
       
-      // Apagar cámara
       const stream = videoRef.current.srcObject as MediaStream;
       stream?.getTracks().forEach(track => track.stop());
       setCameraActive(false);
     }
   };
 
-  // Control del Canvas de Firma Manual
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     isDrawing.current = true;
     draw(e);
@@ -133,7 +129,7 @@ export default function RentarVehiculoPage() {
     ctx?.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
   };
 
-  // Envío Final Consolidado
+  // Envío Final Consolidado (Email + Firestore)
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!termsAccepted) { alert("Debe aceptar los términos y condiciones de uso."); return; }
@@ -145,16 +141,23 @@ export default function RentarVehiculoPage() {
       signatureImgUrl = canvasRef.current.toDataURL('image/png');
     }
 
+    const timestamp = new Date().toISOString();
+    const requestBody = {
+      ...formData,
+      licenseImgUrl: licenseImg,
+      idImgUrl: idImg,
+      selfieImgUrl: selfieImg,
+      signatureImgUrl,
+      createdAt: timestamp,
+      status: 'Pendiente', // Estatus inicial para auditoría del admin
+      ...(user && { userId: user.uid, userEmail: user.email })
+    };
+
     try {
-      const requestBody = {
-        ...formData,
-        licenseImgUrl: licenseImg,
-        idImgUrl: idImg,
-        selfieImgUrl: selfieImg,
-        signatureImgUrl,
-        createdAt: new Date().toISOString(),
-        ...(user && { userId: user.uid, userEmail: user.email })
-      };
+      // 🔥 1. PERSISTENCIA EN FIRESTORE
+      await addDoc(collection(db, 'rentals'), requestBody);
+
+      // ✉️ 2. DESPACHO DE NOTIFICACIÓN POR EMAIL
       const response = await fetch('/api/send-rent-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,7 +184,7 @@ export default function RentarVehiculoPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="space-y-4 text-center mb-10">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl uppercase">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
           Enviar Solicitud de Renta
         </h1>
         <p className="text-sm sm:text-base text-slate-500 max-w-xl mx-auto font-medium">
@@ -468,7 +471,7 @@ export default function RentarVehiculoPage() {
           </button>
         </div>
 
-        {/* 🌟 BLOQUES DE NOTIFICACIONES LINDOS MOVIDOS ABAJO DEL TODO */}
+        {/* BLOQUES DE NOTIFICACIONES */}
         <div className="pt-2">
           {submitStatus === 'success' && (
             <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col items-center text-center animate-fade-in">
