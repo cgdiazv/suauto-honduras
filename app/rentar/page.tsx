@@ -2,11 +2,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation'; // 🔑 Importamos el router para la redirección
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc } from 'firebase/firestore'; // 🔥 Importamos las utilidades de Firestore
-import { storage, db } from '@/lib/firebase'; // 🔥 Importamos la instancia 'db' de tu configuración
+import { collection, addDoc } from 'firebase/firestore'; 
+import { storage, db } from '@/lib/firebase'; 
 import { 
   Loader2, 
   CheckCircle2, 
@@ -29,7 +30,8 @@ const initialFormData = {
 };
 
 export default function RentarVehiculoPage() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth(); // 🔑 Consumimos 'loading' para saber si Firebase ya verificó la sesión
+  const router = useRouter();
   const [formData, setFormData] = useState(initialFormData);
 
   // Estado multimedia
@@ -48,6 +50,14 @@ export default function RentarVehiculoPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const isDrawing = useRef(false);
+
+  // 🛡️ PROTECCIÓN DE RUTA INMEDIATA
+  useEffect(() => {
+    // Si el AuthContext ya terminó de cargar el estado y determina que NO hay usuario
+    if (!loading && !user) {
+      router.push('/login?redirect=/rentar'); // Lo mandamos al login y guardamos la ruta de retorno
+    }
+  }, [user, loading, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -129,10 +139,9 @@ export default function RentarVehiculoPage() {
     ctx?.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
   };
 
-  // Envío Final Consolidado (Email + Firestore)
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 🛡️ Seguridad: Evitar envíos si no está logueado
+    
     if (!user) {
       alert("Debes iniciar sesión para poder enviar una solicitud de renta.");
       return;
@@ -143,11 +152,11 @@ export default function RentarVehiculoPage() {
       return; 
     }
     
-    // Validar que realmente se hayan subido los documentos obligatorios
     if (!licenseImg || !idImg || !selfieImg) {
       alert("Por favor, asegúrate de cargar todos los documentos requeridos (Licencia, Identidad y Selfie) antes de enviar.");
       return;
     }
+
     setIsSending(true);
     setSubmitStatus('idle');
 
@@ -164,15 +173,13 @@ export default function RentarVehiculoPage() {
       selfieImgUrl: selfieImg,
       signatureImgUrl,
       createdAt: timestamp,
-      status: 'Pendiente', // Estatus inicial para auditoría del admin
+      status: 'Pendiente',
       ...(user && { userId: user.uid, userEmail: user.email })
     };
 
     try {
-      // 🔥 1. PERSISTENCIA EN FIRESTORE
       await addDoc(collection(db, 'rentals'), requestBody);
 
-      // ✉️ 2. DESPACHO DE NOTIFICACIÓN POR EMAIL
       const response = await fetch('/api/send-rent-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -195,6 +202,20 @@ export default function RentarVehiculoPage() {
       setIsSending(false);
     }
   };
+
+  // ⏳ Mientras Firebase valida el estado de la sesión, mostramos pantalla de carga limpia
+  if (loading || (!user && loading)) {
+    return (
+      <div className="p-12 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
+        <Loader2 className="w-4 h-4 animate-spin text-blue-900" />
+        Verificando credenciales de acceso...
+      </div>
+    );
+  }
+
+  // Si ya no está cargando y no hay usuario, el useEffect se encarga de redirigir, 
+  // pero retornamos null aquí para evitar el parpadeo visual del formulario desprotegido.
+  if (!user) return null;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
