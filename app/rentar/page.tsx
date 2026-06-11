@@ -129,9 +129,8 @@ export default function RentarVehiculoPage() {
   };
 
   const clearSignature = () => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext('2d');
-    ctx?.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    const ctx = canvasRef.current?.getContext('2d');
+    ctx?.clearRect(0, 0, canvasRef.current?.width || 0, canvasRef.current?.height || 0);
   };
 
   // Envío Final Consolidado
@@ -153,7 +152,6 @@ export default function RentarVehiculoPage() {
         idImgUrl: idImg,
         selfieImgUrl: selfieImg,
         signatureImgUrl,
-        status: 'pendiente',
         createdAt: new Date().toISOString(),
         ...(user && { userId: user.uid, userEmail: user.email })
       };
