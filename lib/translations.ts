@@ -1,5 +1,12 @@
 // src/lib/translations.ts
 
+export type Language = 'es' | 'en';
+
+// Definimos un tipo recursivo simple para validar que las estructuras sean idénticas sin quemar strings fijos
+export type TranslationStructure = {
+  [key: string]: string | TranslationStructure;
+};
+
 export const translations = {
   es: {
     nav: { rent: 'Rentar Vehículo', sell: 'Vender Vehículo', news: 'Noticias', contact: 'Contáctenos', account: 'Mi Cuenta' },
@@ -176,7 +183,7 @@ export const translations = {
     },
     privacy: {
       title: 'Política de Privacidad', metaTitle: 'Política de Privacidad - Su Auto Honduras', metaDescription: 'Conozca nuestras políticas de tratamiento de datos, confidencialidad y seguridad de la información de acuerdo a la legislación vigente.', lastUpdated: 'Última actualización: Junio 2026',
-      paragraphs: { iaip: 'En cumplimiento de la Ley del Instituto de Acceso a la Información Pública, Decreto Legislativo No. 170 – 2006, Su Auto Honduras (en adelante la empresa) cumple estrictamente con todas las medidas necesarias para garantizar la seguridad, integridad y privacidad de los datos aportados a través de los formularios de recogida de datos insertados en el sitio de internet www.suautohn.com (en adelante el sitio).', dataUsage: 'Los datos personales introducidos libremente por el cliente (en adelante el usuario) en los formularios del sitio son empleados única y exclusivamente por la empresa para realizar sus labores de gestión administrativa, técnica, y comercial. En ningún caso se cederán datos personales de nuestros clientes a terceros ajenos a la empresa sin consentimiento expreso del afectado. La empresa se compromete a cancelar los datos personales recabados cuando hayan dejado de ser necesarios o pertinentes para la finalidad para la cual fueron recogidos.', dataTransfer: 'La empresa accederá a la cesión de datos únicamente cuando ello implique una necesidad para poder prestar a sus clientes los servicios contratados, cediendo estos únicamente a aquellas entidades y organismos que se encuentren íntima y necesariamente ligados con la prestación de los distintos servicios que se ofrecen en el sitio, trabajadores o colaboradores de la empresa y compañías o firmas profesionales que colaboren o ayuden en temas económicos, administrativos, legales, fiscales o financieros.', authorizedStaff: 'El acceso del personal autorizado de la empresa a los datos de clientes se realiza de forma controlada y jerárquica, según la política interna de acceso y tratamiento de los datos de clientes.', arcoRights: 'El usuario que introduzca sus datos personales en los distintos formularios de alta del sitio tendrá plena capacidad para ejercitar sus derechos de acceso, rectificación, cancelación y oposición en cualquier momento solicitándolo a la empresa, de acuerdo con lo previsto en la citada ley.', encryptionTitle: 'Cifrado y Responsabilidad de Seguridad', encryptionP1: 'La transmisión de los datos se efectúa de forma encriptada bajo una conexión segura; la empresa asegura la absoluta confidencialidad y privacidad de los datos personales recogidos y por ello se han adoptado medidas esenciales de seguridad para evitar la alteración, pérdida, tratamiento o acceso no autorizado y garantizar así su integridad y seguridad.', encryptionP2: 'Sin embargo, la empresa no garantiza que terceros no autorizados que realicen cualquier tipo de ataque al sistema puedan tener conocimiento de las características del uso que los usuarios hacen del sitio. Por ello, la empresa no será en ningún caso responsable de las incidencias que puedan surgir en torno a los datos personales cuando se deriven bien de un ataque o acceso no autorizado a los sistemas del sitio, de tal forma que sea imposible detectarlo por las actuales medidas de seguridad o bien cuando se deba a una falta de diligencia del usuario en cuanto a la guardia y custodia de sus claves de acceso o de sus propios datos personales.', veracity: 'La información facilitada por el usuario deberá ser veraz. A estos efectos, el usuario garantiza la autenticidad de todos aquellos datos que comunique como consecuencia de la cumplimentación de los formularios necesarios para la contratación de los Servicios. Igualmente, será responsabilidad del usuario mantener dicha información permanentemente actualizada para que responda, en cada momento, a la situación real del usuario. El usuario será el único responsable de las manifestaciones falsas o inexactas que realice y de los perjuicios que cause a la empresa o a terceros por la información que facilite.', intellectualProperty: 'La empresa prohíbe expresamente la reproducción, distribución, comunicación pública, transformación total o parcial, o cualquier otra actividad que se pueda realizar con los contenidos y/o el software del sitio ni aun citando las fuentes, salvo consentimiento por escrito de la empresa.', jurisdiction: 'La resolución de cualquier conflicto, controversia o reclamación derivada de la utilización del sitio, su contenido, o cualquiera de los productos y/o servicios en el ofrecidos, está sometida a la legislación vigente.' },
+      paragraphs: { iaip: 'En cumplimiento de la Ley del Instituto de Acceso a la Información Pública, Decreto Legislativo No. 170 – 2006, Su Auto Honduras (en adelante la empresa) cumple estrictamente con todas las medidas necesarias para garantizar la seguridad, integridad y privacidad de los datos aportados a través de los formularios de recogida de datos insertados en el sitio de internet www.suautohn.com (en adelante el sitio).', dataUsage: 'Los datos personales introducidos libremente por el cliente (en adelante el usuario) en los formularios del sitio son empleados única y exclusivamente por la empresa para realizar sus labors de gestión administrativa, técnica, y comercial. En ningún caso se cederán datos personales de nuestros clientes a terceros ajenos a la empresa sin consentimiento expreso del afectado. La empresa se compromete a cancelar los datos personales recabados cuando hayan dejado de ser necesarios o pertinentes para la finalidad para la cual fueron recogidos.', dataTransfer: 'La empresa accederá a la cesión de datos únicamente cuando ello implique una necesidad para poder prestar a sus clientes los servicios contratados, cediendo estos únicamente a aquellas entidades y organismos que se encuentren íntima y necesariamente ligados con la prestación de los distintos servicios que se ofrecen en el sitio, trabajadores o colaboradores de la empresa y compañías o firmas profesionales que colaboren o ayuden en temas económicos, administrativos, legales, fiscales o financieros.', authorizedStaff: 'El acceso del personal autorizado de la empresa a los datos de clientes se realiza de forma controlada y jerárquica, según la política interna de acceso y tratamiento de los datos de clientes.', arcoRights: 'El usuario que introduzca sus datos personales en los distintos formularios de alta del sitio tendrá plena capacidad para ejercitar sus derechos de acceso, rectificación, cancelación y oposición en cualquier momento solicitándolo a la empresa, de acuerdo con lo previsto en la citada ley.', encryptionTitle: 'Cifrado y Responsabilidad de Seguridad', encryptionP1: 'La transmisión de los datos se efectúa de forma encriptada bajo una conexión segura; la empresa asegura la absoluta confidencialidad y privacidad de los datos personales recogidos y por ello se han adoptado medidas esenciales de seguridad para evitar la alteración, pérdida, tratamiento o acceso no autorizado y garantizar así su integridad y seguridad.', encryptionP2: 'Sin embargo, la empresa no garantiza que terceros no autorizados que realicen cualquier tipo de ataque al sistema puedan tener conocimiento de las características del uso que los usuarios hacen del sitio. Por ello, la empresa no será en ningún caso responsable de las incidencias que puedan surgir en torno a los datos personales cuando se deriven bien de un ataque o acceso no autorizado a los sistemas del sitio, de tal forma que sea imposible detectarlo por las actuales medidas de seguridad o bien cuando se deba a una falta de diligencia del usuario en cuanto a la guarda y custodia de sus claves de acceso o de sus propios datos personales.', veracity: 'La información facilitada por el usuario deberá ser veraz. A estos efectos, el usuario garantiza la autenticidad de todos aquellos datos que comunique como consecuencia de la cumplimentación de los formularios necesarios para la contratación de los Servicios. Igualmente, será responsabilidad del usuario mantener dicha información permanentemente actualizada para que responda, en cada momento, a la situación real del usuario. El usuario será el único responsable de las manifestaciones falsas o inexactas que realice y de los perjuicios que cause a la empresa o a terceros por la información que facilite.', intellectualProperty: 'La empresa prohíbe expresamente la reproducción, distribución, comunicación pública, transformación total o parcial, o cualquier otra actividad que se pueda realizar con los contenidos y/o el software del sitio ni aun citando las fuentes, salvo consentimiento por escrito de la empresa.', jurisdiction: 'La resolución de cualquier conflicto, controversia o reclamación derivada de la utilización del sitio, su contenido, o cualquiera de los productos y/o servicios en el ofrecidos, está sometida a la legislación vigente.' },
       questions: '¿Tiene consultas de privacidad?', questionsSub: 'Nuestro canal legal se encuentra a su disposición permanente.'
     },
     terms: {
@@ -187,32 +194,32 @@ export const translations = {
     footer: { rights: 'Su Auto Honduras. San Pedro Sula, Cortés. Todos los derechos reservados.', links: { privacy: 'Privacidad', terms: 'Términos', support: 'Soporte' } },
     email: { contactSubject: '✉️ Nuevo Mensaje de Contacto:', contactTitle: 'Mensaje desde el Sitio Web', contactSubtitle: 'Un cliente potencial ha dejado una consulta a través del formulario de contacto.', senderName: 'Nombre del Remitente:', senderEmail: 'Correo de Contacto:', messageContent: '💬 Contenido del Mensaje:', automatedFooter: 'Este correo fue generado de forma automatizada por el portal de Su Auto Honduras.', errorFields: 'Todos los campos son mandatorios.' },
     sell: {
-  title: 'Vende tu Vehículo con Nosotros', // Or 'Sell Your Vehicle with Us' for 'en'
-  subtitle: 'Completa el formulario con los datos de tu auto y nos pondremos en contacto contigo a la brevedad.',
-  successTitle: '¡Propuesta enviada con éxito!',
-  successMsg: 'Hemos recibido los datos de tu auto. El equipo de Su Auto revisará la información y te contactará pronto.',
-  errorMsg: 'Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde.',
-  personalData: '1. Datos Personales',
-  fullName: 'Nombre Completo',
-  phone: 'Número de Teléfono / WhatsApp',
-  email: 'Correo Electrónico (Opcional)',
-  location: 'Ciudad / Ubicación (Opcional)',
-  carDetails: '2. Detalles del Auto',
-  brand: 'Marca',
-  model: 'Modelo',
-  year: 'Año',
-  mileage: 'Kilometraje',
-  price: 'Precio Estimado',
-  transmission: 'Transmisión',
-  fuelType: 'Combustible',
-  description: 'Descripción / Estado del Auto',
-  photoSection: '3. Fotografía Principal del Vehículo',
-  uploading: 'Subiendo Imagen...',
-  attachPhoto: 'Adjuntar una Foto Clara',
-  photoFormat: 'Formatos JPG o PNG de la galería',
-  removePhoto: 'Eliminar Foto',
-  sending: 'Enviando Propuesta...',
-  sendBtn: 'Enviar Datos a Su Auto'
+      title: 'Vende tu Vehículo con Nosotros',
+      subtitle: 'Completa el formulario con los datos de tu auto y nos pondremos en contacto contigo a la brevedad.',
+      successTitle: '¡Propuesta enviada con éxito!',
+      successMsg: 'Hemos recibido los datos de tu auto. El equipo de Su Auto revisará la información y te contactará pronto.',
+      errorMsg: 'Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde.',
+      personalData: '1. Datos Personales',
+      fullName: 'Nombre Completo',
+      phone: 'Número de Teléfono / WhatsApp',
+      email: 'Correo Electrónico (Opcional)',
+      location: 'Ciudad / Ubicación (Opcional)',
+      carDetails: '2. Detalles del Auto',
+      brand: 'Marca',
+      model: 'Modelo',
+      year: 'Año',
+      mileage: 'Kilometraje',
+      price: 'Precio Estimado',
+      transmission: 'Transmisión',
+      fuelType: 'Combustible',
+      description: 'Descripción / Estado del Auto',
+      photoSection: '3. Fotografía Principal del Vehículo',
+      uploading: 'Subiendo Imagen...',
+      attachPhoto: 'Adjuntar una Foto Clara',
+      photoFormat: 'Formatos JPG o PNG de la galería',
+      removePhoto: 'Eliminar Foto',
+      sending: 'Enviando Propuesta...',
+      sendBtn: 'Enviar Datos a Su Auto'
     },
     news: {
       subscriberName: 'Suscriptor de Noticias',
@@ -457,7 +464,6 @@ export const translations = {
       backHome: 'Back to Main Inventory'
     }
   }
-} as const;
+} satisfies Record<Language, TranslationStructure>; // 🔑 Evita rigidez literal y valida simetría recursiva
 
-export type Language = 'es' | 'en';
 export type TranslationSchema = typeof translations['es'];
