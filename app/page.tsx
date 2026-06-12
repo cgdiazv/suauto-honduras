@@ -181,7 +181,7 @@ export default function Home() {
               <div key={vehicle.id} className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs hover:shadow-md transition">
                 
                 {/* Image Wrap */}
-                <div className="aspect-video relative bg-slate-100 group-hover:opacity-95 transition">
+                <div className="h-52 w-full shrink-0 relative bg-slate-100 group-hover:opacity-95 transition">
                   <img
                     src={vehicle.featuredImage}
                     alt={vehicle.title || `${vehicle.brand} ${vehicle.modelName}`}
