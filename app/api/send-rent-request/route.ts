@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     // 2. Enviar la notificación por correo electrónico (funcionalidad existente)
     await resend.emails.send({
       from: 'Notificaciones SuAuto <noreply@suautohn.com>',
-      to: ['ventas@suautohn.com', 'carlos.diaz@suautohn.com'],
+      to: ['contacto@suautohonduras.com'],
       subject: `Nueva Solicitud de Renta - ${body.firstName} ${body.lastName}`,
       react: createElement(RentalRequestEmail, { formData: body }),
     });
