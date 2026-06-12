@@ -428,9 +428,11 @@ export default function RentarVehiculoPage() {
               <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.vehicleType || "Tipo de Vehículo *"}</label>
               <select name="vehicleType" required value={formData.vehicleType} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700">
                 <option value="">{t.rentalPage?.placeholders?.vehicleTypeDefault || "Seleccione el tipo de vehículo"}</option>
-                <option value="Turismo">{t.rentalPage?.vehicleTypes?.economy || "Turismo Económico"}</option>
-                <option value="SUV/Camioneta">{t.rentalPage?.vehicleTypes?.suv || "SUV Familiar"}</option>
-                <option value="Pickup">{t.rentalPage?.vehicleTypes?.pickup || "Pickup de Trabajo / 4x4"}</option>
+                <option value="CityRide">{t.rentalPage?.vehicleTypes?.cityRide || "CityRide (solo San Pedro Sula)"}</option>
+                <option value="Turismo">{t.rentalPage?.vehicleTypes?.sedan || "Turismo"}</option>
+                <option value="Camioneta 5 pasajeros">{t.rentalPage?.vehicleTypes?.suv5 || "Camioneta 5 pasajeros"}</option>
+                <option value="Camioneta 7 pasajeros">{t.rentalPage?.vehicleTypes?.suv7 || "Camioneta 7 pasajeros"}</option>
+                <option value="Pick Up doble cabina">{t.rentalPage?.vehicleTypes?.pickup || "Pick Up doble cabina"}</option>
               </select>
             </div>
           </div>

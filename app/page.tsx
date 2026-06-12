@@ -101,6 +101,22 @@ export default function Home() {
             {t.home?.heroSubtitle || "Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento."}
           </p>
           
+          {/* CTAs exclusivos para versión móvil */}
+          <div className="mt-6 flex flex-col gap-3 sm:hidden">
+            <Link 
+              href="/vender" 
+              className="w-full rounded-lg bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+            >
+              {t.nav?.sell || "Vender Vehículo"}
+            </Link>
+            <Link 
+              href="/rentar" 
+              className="w-full rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50 transition"
+            >
+              {t.nav?.rent || "Rentar Vehículo"}
+            </Link>
+          </div>
+
           {/* Contenedor de Filtros Conectado al Estado Reactivo */}
           <div className="mx-auto mt-10 max-w-3xl rounded-xl bg-white p-4 shadow-xl text-slate-800 grid grid-cols-1 gap-4 sm:grid-cols-4 items-center">
             
