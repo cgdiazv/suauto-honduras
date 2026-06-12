@@ -14,7 +14,10 @@ export default function RentalDetailModal({ rental, isOpen, onClose }: RentalDet
   if (!isOpen || !rental) return null;
 
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = `Solicitud de Renta | ${rental.firstName} ${rental.lastName}`;
     window.print();
+    document.title = originalTitle;
   };
 
   return (
