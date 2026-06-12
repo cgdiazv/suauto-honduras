@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Printer } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function ContactoPage() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [isSending, setIsSending] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const { t } = useLanguage();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -44,10 +46,10 @@ export default function ContactoPage() {
       {/* 👑 Título Principal de la Página */}
       <div className="text-center mb-12 space-y-2">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-          Ponte en Contacto
+          {t.contact?.pageTitle || "Ponte en Contacto"}
         </h1>
         <p className="text-base text-slate-500 max-w-xl mx-auto">
-          ¿Tienes dudas sobre nuestro inventario o servicios? Estamos listos para ayudarte en San Pedro Sula.
+          {t.contact?.pageSub || "¿Tienes dudas sobre nuestro inventario o servicios? Estamos listos para ayudarte en San Pedro Sula."}
         </p>
       </div>
 
@@ -58,17 +60,17 @@ export default function ContactoPage() {
           <div>
             {/* 📍 Subtítulo de Información corporativa */}
             <h2 className="text-xs font-black tracking-wider text-blue-900 uppercase border-b border-slate-100 pb-2 mb-4">
-              Información Corporativa
+              {t.contact?.corporateTitle || "Información Corporativa"}
             </h2>
-            <h3 className="text-lg font-bold text-slate-900 mb-3">Su Auto Honduras</h3>
+            <h3 className="text-lg font-bold text-slate-900 mb-3">{t.contact?.companyName || "Su Auto Honduras"}</h3>
             <ul className="space-y-3.5 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-blue-600 mt-0.5" />
-                <span>2 Cll 8 y 9 Ave Guamilito, San Pedro Sula</span>
+                <span>{t.contact?.addressValue || "2 Cll 8 y 9 Ave Guamilito, San Pedro Sula"}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-blue-600" />
-                <span>(504) 2570-0962</span>
+                <span>{t.contact?.phoneValue || "(504) 2570-0962"}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-blue-600" />
@@ -78,7 +80,7 @@ export default function ContactoPage() {
               </li>
               <li className="flex items-center gap-3">
                 <Printer className="w-5 h-5 text-blue-600" />
-                <span>Fax: (504) 2570-0962</span>
+                <span>{t.contact?.faxValue || "Fax: (504) 2570-0962"}</span>
               </li>
             </ul>
           </div>
@@ -86,12 +88,12 @@ export default function ContactoPage() {
           <div className="pt-2">
             {/* ⏰ Subtítulo de Horarios */}
             <h2 className="text-xs font-black tracking-wider text-blue-900 uppercase border-b border-slate-100 pb-2 mb-4">
-              Horarios de Atención
+              {t.contact?.scheduleTitle || "Horarios de Atención"}
             </h2>
             <div className="space-y-1 text-sm text-slate-600">
-              <p className="italic">Lun – Vie: <span className="font-medium text-slate-900">8AM – 6PM</span></p>
-              <p className="italic">Sab: <span className="font-medium text-slate-900">8AM – 6PM</span></p>
-              <p className="italic">Dom: <span className="font-bold text-red-600">CERRADO</span></p>
+              <p className="italic">{t.contact?.weekdays || "Lun – Vie:"} <span className="font-medium text-slate-900">8AM – 6PM</span></p>
+              <p className="italic">{t.contact?.saturday || "Sab:"} <span className="font-medium text-slate-900">8AM – 6PM</span></p>
+              <p className="italic">{t.contact?.sunday || "Dom:"} <span className="font-bold text-red-600">{t.contact?.closedStatus || "CERRADO"}</span></p>
             </div>
           </div>
         </div>
@@ -100,18 +102,18 @@ export default function ContactoPage() {
         <div className="space-y-4">
           {/* ✉️ Subtítulo del Formulario */}
           <h2 className="text-xs font-black tracking-wider text-blue-900 uppercase border-b border-slate-100 pb-2 mb-4">
-            Escríbenos un Mensaje
+            {t.contact?.formTitle || "Escríbenos un Mensaje"}
           </h2>
 
           {submitStatus === 'success' && (
             <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-lg text-center">
-              ✓ ¡Mensaje enviado con éxito! Nos comunicaremos con usted muy pronto.
+              {t.contact?.successMessage || "✓ ¡Mensaje enviado con éxito! Nos comunicaremos con usted muy pronto."}
             </div>
           )}
 
           {submitStatus === 'error' && (
             <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold rounded-lg text-center">
-              ❌ Ocurrió un inconveniente al enviar el formulario. Intente de nuevo.
+              {t.contact?.errorMessage || "❌ Ocurrió un inconveniente al enviar el formulario. Intente de nuevo."}
             </div>
           )}
 
@@ -123,7 +125,7 @@ export default function ContactoPage() {
                 required 
                 value={formData.name} 
                 onChange={handleChange} 
-                placeholder="Nombre" 
+                placeholder={t.contact?.placeholderName || "Nombre"}
                 className="w-full bg-slate-100/70 p-3 text-sm border-0 rounded-md focus:ring-2 focus:ring-blue-900 placeholder-slate-400"
               />
             </div>
@@ -135,7 +137,7 @@ export default function ContactoPage() {
                 required 
                 value={formData.email} 
                 onChange={handleChange} 
-                placeholder="Email" 
+                placeholder={t.contact?.placeholderEmail || "Email"}
                 className="w-full bg-slate-100/70 p-3 text-sm border-0 rounded-md focus:ring-2 focus:ring-blue-900 placeholder-slate-400"
               />
             </div>
@@ -147,7 +149,7 @@ export default function ContactoPage() {
                 rows={5} 
                 value={formData.message} 
                 onChange={handleChange} 
-                placeholder="Mensaje" 
+                placeholder={t.contact?.placeholderMessage || "Mensaje"}
                 className="w-full bg-slate-100/70 p-3 text-sm border-0 rounded-md focus:ring-2 focus:ring-blue-900 placeholder-slate-400 resize-none"
               />
             </div>
@@ -157,7 +159,7 @@ export default function ContactoPage() {
               disabled={isSending}
               className="w-full bg-[#1e3a8a] hover:bg-[#172554] text-white font-bold py-3.5 px-4 rounded-md text-sm uppercase tracking-wider transition shadow-md disabled:bg-slate-400 flex items-center justify-center gap-2 cursor-pointer"
             >
-              {isSending ? '⏳ Enviando Mensaje...' : 'Enviar Mensaje'}
+              {isSending ? (t.contact?.sendingBtn || '⏳ Enviando Mensaje...') : (t.contact?.sendBtn || 'Enviar Mensaje')}
             </button>
           </form>
         </div>

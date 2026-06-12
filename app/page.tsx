@@ -8,11 +8,14 @@ import { Vehicle } from '@/types/vehicle';
 import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import { X } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext'; // 🔑 Importamos el contexto bilingüe
+
 
 export default function Home() {
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, language, setLanguage } = useLanguage(); // 🔑 Consumimos el estado del diccionario
 
   // Estados de los Selectores de Búsqueda
   const [selectedBrand, setSelectedBrand] = useState('Todas las Marcas');
@@ -92,10 +95,10 @@ export default function Home() {
       >
         <div className="mx-auto max-w-4xl space-y-6 relative z-10">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl drop-shadow-md">
-            Encuentra tu próximo vehículo en San Pedro Sula
+            {t.home?.heroTitle || "Encuentra tu próximo vehículo en San Pedro Sula"}
           </h1>
           <p className="text-xl text-blue-100 max-w-2xl mx-auto drop-shadow-xs">
-            Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento.
+            {t.home?.heroSubtitle || "Explora nuestro inventario seleccionado de autos usados garantizados con excelentes opciones de financiamiento."}
           </p>
           
           {/* Contenedor de Filtros Conectado al Estado Reactivo */}
@@ -107,7 +110,7 @@ export default function Home() {
               onChange={(e) => setSelectedBrand(e.target.value)}
               className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
             >
-              <option value="Todas las Marcas">Todas las Marcas</option>
+              <option value="Todas las Marcas">{t.home?.allBrands || "Todas las Marcas"}</option>
               {availableBrands.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
 
@@ -117,7 +120,7 @@ export default function Home() {
               onChange={(e) => setSelectedType(e.target.value)}
               className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
             >
-              <option value="Tipo de Vehículo">Tipo de Vehículo</option>
+              <option value="Tipo de Vehículo">{t.home?.vehicleType || "Tipo de Vehículo"}</option>
               {availableTypes.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
 
@@ -127,7 +130,7 @@ export default function Home() {
               onChange={(e) => setSelectedTransmission(e.target.value)}
               className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50 font-medium text-slate-700"
             >
-              <option value="Transmisión">Transmisión</option>
+              <option value="Transmisión">{t.home?.transmission || "Transmisión"}</option>
               {availableTransmissions.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
 
@@ -136,7 +139,7 @@ export default function Home() {
               onClick={handleSearch}
               className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition cursor-pointer"
             >
-              Buscar Auto
+              {t.home?.searchBtn || "Buscar Auto"}
             </button>
           </div>
         </div>
@@ -146,7 +149,7 @@ export default function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between border-b border-slate-200 pb-5">
           <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-            Inventario Disponible
+            {t.home?.inventoryTitle || "Inventario Disponible"}
           </h2>
           {filteredVehicles.length !== allVehicles.length && (
   <button 
@@ -159,18 +162,18 @@ export default function Home() {
     className="text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition flex items-center gap-1 cursor-pointer"
   >
     <X className="w-3.5 h-3.5" />
-    Limpiar Filtros
+    {t.home?.clearFilters || "Limpiar Filtros"}
   </button>
 )}
         </div>
 
         {/* Mapeo del Estado Filtrado */}
         {loading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Buscando en el stock de Su Auto...</div>
+          <div className="p-12 text-center text-slate-400 text-sm">{t.home?.searchingStock || "Buscando en el stock de Su Auto..."}</div>
         ) : filteredVehicles.length === 0 ? (
           <div className="mt-12 text-center text-slate-500 py-12 border rounded-xl border-dashed bg-white">
-            <p className="font-semibold text-lg">No encontramos vehículos que coincidan con esos filtros.</p>
-            <p className="text-sm text-slate-400 mt-1">Intenta restablecer los selectores para ver más opciones disponibles.</p>
+            <p className="font-semibold text-lg">{t.home?.noResultsTitle || "No encontramos vehículos que coincidan con esos filtros."}</p>
+            <p className="text-sm text-slate-400 mt-1">{t.home?.noResultsSub || "Intenta restablecer los selectores para ver más opciones disponibles."}</p>
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
@@ -208,7 +211,7 @@ export default function Home() {
                   </div>
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <span className="text-base font-extrabold text-blue-900">{formatPrice(vehicle.price)}</span>
-                    <span className="text-xs font-semibold text-blue-600 group-hover:underline">Ver detalles &rarr;</span>
+                    <span className="text-xs font-semibold text-blue-600 group-hover:underline">{t.home?.viewDetails || "Ver detalles"} &rarr;</span>
                   </div>
                 </div>
 

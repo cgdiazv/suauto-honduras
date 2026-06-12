@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { CarFront, Key, Users, Settings, LogOut } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -15,6 +16,7 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ activeTab, setActiveTab, setShowAddForm }: AdminSidebarProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
 
   if (!user) return null;
 
@@ -34,28 +36,28 @@ export default function AdminSidebar({ activeTab, setActiveTab, setShowAddForm }
         {/* Menú Vertical */}
         <nav className="p-2 md:p-4 space-y-2">
           <button onClick={() => setActiveTab('vehiculos')} className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'vehiculos' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
-            <CarFront className="w-5 h-5" /> <span className="hidden md:inline">Inventario Stock</span>
+            <CarFront className="w-5 h-5" /> <span className="hidden md:inline">{t.admin?.sidebar?.inventory || 'Inventario Stock'}</span>
           </button>
           <button onClick={() => { setActiveTab('rentas'); setShowAddForm(false); }} className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'rentas' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
-            <Key className="w-5 h-5" /> <span className="hidden md:inline">Ver Rentas</span>
+            <Key className="w-5 h-5" /> <span className="hidden md:inline">{t.admin?.sidebar?.rentals || 'Ver Rentas'}</span>
           </button>
           <button onClick={() => { setActiveTab('clientes'); setShowAddForm(false); }} className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'clientes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
-            <Users className="w-5 h-5" /> <span className="hidden md:inline">Clientes / Leads</span>
+            <Users className="w-5 h-5" /> <span className="hidden md:inline">{t.admin?.sidebar?.customers || 'Clientes / Leads'}</span>
           </button>
           <button onClick={() => { setActiveTab('ajustes'); setShowAddForm(false); }} className={`w-full flex items-center justify-center md:justify-start space-x-0 md:space-x-3 p-3 rounded-xl text-sm font-bold transition ${activeTab === 'ajustes' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}>
-            <Settings className="w-5 h-5" /> <span className="hidden md:inline">Ajustes</span>
+            <Settings className="w-5 h-5" /> <span className="hidden md:inline">{t.admin?.sidebar?.settings || 'Ajustes'}</span>
           </button>
         </nav>
       </div>
 
       {/* Footer del Sidebar */}
       <div className="p-2 md:p-4 border-t border-slate-800 bg-slate-950/40 text-center md:text-left">
-        <div className="hidden md:block text-[10px] text-slate-500 mb-2 truncate px-2">Sesión: {user.email}</div>
+        <div className="hidden md:block text-[10px] text-slate-500 mb-2 truncate px-2">{t.admin?.sidebar?.session || 'Sesión:'} {user.email}</div>
         <button 
           onClick={async () => { await logout(); router.push('/login'); }} 
           className="w-full flex items-center justify-center space-x-0 md:space-x-2 p-2.5 rounded-lg bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-red-900 hover:text-white transition"
         >
-          <LogOut className="w-4 h-4" /> <span className="hidden md:inline">Salir</span>
+          <LogOut className="w-4 h-4" /> <span className="hidden md:inline">{t.admin?.sidebar?.logout || 'Salir'}</span>
         </button>
       </div>
     </aside>

@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { AuthProvider } from "../context/AuthContext";
 import { ReactNode } from "react";
+import { LanguageProvider } from '@/context/LanguageContext'; // 🔑 Importar
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,11 +19,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="es">
       <body className="min-h-screen flex flex-col">
         <AuthProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
+          <LanguageProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
+

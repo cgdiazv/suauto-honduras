@@ -3,10 +3,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function NoticiasComingSoonPage() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const { t } = useLanguage();
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,9 +22,9 @@ export default function NoticiasComingSoonPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: 'Suscriptor de Noticias',
+          name: t.news?.subscriberName || 'Suscriptor de Noticias',
           email: email,
-          message: 'Deseo recibir notificaciones automáticas cuando el portal de noticias de Su Auto Honduras esté activo.'
+          message: t.news?.subscriberMessage || 'Deseo recibir notificaciones automáticas cuando el portal de noticias de Su Auto Honduras esté activo.'
         })
       });
 
@@ -53,16 +55,16 @@ export default function NoticiasComingSoonPage() {
         
         {/* Badge Informativo */}
         <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest animate-pulse mx-auto">
-          <span>📢</span> Portal en Desarrollo
+          {t.news?.badge || '📢 Portal en Desarrollo'}
         </div>
 
         {/* Encabezado Principal */}
         <div className="space-y-3">
           <h1 className="text-4xl font-black tracking-tight sm:text-5xl uppercase bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            Próximamente
+            {t.news?.title || 'Próximamente'}
           </h1>
           <p className="text-base text-slate-300 max-w-lg mx-auto font-medium">
-            Estamos construyendo el rincón automotriz definitivo. Muy pronto podrás leer reseñas exclusivas, consejos mecánicos y lanzamientos de vehículos en Honduras.
+            {t.news?.description || 'Estamos construyendo el rincón automotriz definitivo. Muy pronto podrás leer reseñas exclusivas, consejos mecánicos y lanzamientos de vehículos en Honduras.'}
           </p>
         </div>
 
@@ -71,12 +73,12 @@ export default function NoticiasComingSoonPage() {
         {/* Formulario de Captación de Leads */}
         <div className="space-y-4">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            ¿Quieres ser el primero en enterarte?
+            {t.news?.prompt || '¿Quieres ser el primero en enterarte?'}
           </p>
 
           {status === 'success' ? (
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold max-w-md mx-auto">
-              🎉 ¡Registro exitoso! Te enviaremos una notificación en cuanto encendamos los motores del blog.
+              {t.news?.successMsg || '🎉 ¡Registro exitoso! Te enviaremos una notificación en cuanto encendamos los motores del blog.'}
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
@@ -86,7 +88,7 @@ export default function NoticiasComingSoonPage() {
                 disabled={status === 'loading'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ingresa tu correo electrónico"
+                placeholder={t.news?.emailPlaceholder || "Ingresa tu correo electrónico"}
                 className="flex-1 bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-600 text-white placeholder-slate-500 transition"
               />
               <button
@@ -94,14 +96,14 @@ export default function NoticiasComingSoonPage() {
                 disabled={status === 'loading'}
                 className="bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-xl transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                {status === 'loading' ? 'Procesando...' : 'Notificarme'}
+                {status === 'loading' ? (t.news?.processing || 'Procesando...') : (t.news?.notifyBtn || 'Notificarme')}
               </button>
             </form>
           )}
 
           {status === 'error' && (
             <p className="text-xs text-rose-400 font-semibold">
-              ❌ No se pudo procesar el registro. Inténtalo de nuevo más tarde.
+              {t.news?.errorMsg || '❌ No se pudo procesar el registro. Inténtalo de nuevo más tarde.'}
             </p>
           )}
         </div>
@@ -113,7 +115,7 @@ export default function NoticiasComingSoonPage() {
             className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition group"
           >
             <span className="transform group-hover:-translate-x-1 transition-transform">&larr;</span> 
-            Volver al Inventario Principal
+            {t.news?.backHome || 'Volver al Inventario Principal'}
           </Link>
         </div>
 

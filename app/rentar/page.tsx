@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext'; // 🔑 Importamos el contexto de idioma
 import { useRouter } from 'next/navigation'; // 🔑 Importamos el router para la redirección
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore'; 
@@ -31,6 +32,7 @@ const initialFormData = {
 
 export default function RentarVehiculoPage() {
   const { user, loading } = useAuth(); // 🔑 Consumimos 'loading' para saber si Firebase ya verificó la sesión
+  const { t, language } = useLanguage(); // 🔤 Consumimos el diccionario
   const router = useRouter();
   const [formData, setFormData] = useState(initialFormData);
 
@@ -65,7 +67,7 @@ export default function RentarVehiculoPage() {
 
   const uploadToFirebase = async (file: File, pathKey: string, setUrl: (url: string) => void) => {
     if (!user) {
-      alert("Debes iniciar sesión para poder cargar tus documentos.");
+      alert(t.rentalPage?.storageAuthError || "Debes iniciar sesión para poder cargar tus documentos.");
       router.push('/login?redirect=/rentar');
       return;
     }
@@ -102,7 +104,7 @@ export default function RentarVehiculoPage() {
       if (videoRef.current) videoRef.current.srcObject = stream;
     } catch (err) {
       console.error(err);
-      alert("No se pudo acceder a la cámara frontal.");
+      alert(t.rentalPage?.cameraAccessError || "No se pudo acceder a la cámara frontal.");
       setCameraActive(false);
     }
   };
@@ -160,17 +162,17 @@ export default function RentarVehiculoPage() {
     e.preventDefault();
     
     if (!user) {
-      alert("Debes iniciar sesión para poder enviar una solicitud de renta.");
+      alert(t.rentalPage?.submitAuthError || "Debes iniciar sesión para poder enviar una solicitud de renta.");
       return;
     }
 
     if (!termsAccepted) { 
-      alert("Debe aceptar los términos y condiciones de uso."); 
+      alert(t.rentalPage?.termsValidationError || "Debe aceptar los términos y condiciones de uso."); 
       return; 
     }
     
     if (!licenseImg || !idImg || !selfieImg) {
-      alert("Por favor, asegúrate de cargar todos los documentos requeridos (Licencia, Identidad y Selfie) antes de enviar.");
+      alert(t.rentalPage?.docsValidationError || "Por favor, asegúrate de cargar todos los documentos requeridos (Licencia, Identidad y Selfie) antes de enviar.");
       return;
     }
 
@@ -225,7 +227,7 @@ export default function RentarVehiculoPage() {
     return (
       <div className="p-12 text-center text-slate-500 text-sm flex items-center justify-center gap-2">
         <Loader2 className="w-4 h-4 animate-spin text-blue-900" />
-        Verificando credenciales de acceso...
+        {t.rentalPage?.verifyingAccess || "Verificando credenciales de acceso..."}
       </div>
     );
   }
@@ -238,10 +240,10 @@ export default function RentarVehiculoPage() {
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="space-y-4 text-center mb-10">
         <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-          Enviar Solicitud de Renta
+          {t.rentalPage?.pageTitle || "Enviar Solicitud de Renta"}
         </h1>
         <p className="text-sm sm:text-base text-slate-500 max-w-xl mx-auto font-medium">
-          Completa el formulario y uno de nuestros asesores se pondrá en contacto contigo a la brevedad.
+          {t.rentalPage?.pageSub || "Completa el formulario y uno de nuestros asesores se pondrá en contacto contigo a la brevedad."}
         </p>
       </div>
 
@@ -250,70 +252,70 @@ export default function RentarVehiculoPage() {
         {/* BLOQUE 1: INFORMACIÓN PERSONAL */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <User className="w-5 h-5" /> 1. Información Personal
+            <User className="w-5 h-5" /> {t.sections?.personal || "1. Información Personal"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Nombres *</label>
-              <input type="text" name="firstName" required value={formData.firstName} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. Juan" />
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.firstName || "Nombres *"}</label>
+              <input type="text" name="firstName" required value={formData.firstName} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={t.rentalPage?.placeholders?.firstName || "Ej. Juan"} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Apellidos *</label>
-              <input type="text" name="lastName" required value={formData.lastName} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. Pérez" />
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.lastName || "Apellidos *"}</label>
+              <input type="text" name="lastName" required value={formData.lastName} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={t.rentalPage?.placeholders?.lastName || "Ej. Pérez"} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Número de Identidad o Pasaporte *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.idNumber || "Número de Identificación o Pasaporte *"}</label>
               <input type="text" name="idNumber" required value={formData.idNumber} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Nacimiento *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.birthDate || "Fecha de Nacimiento *"}</label>
               <input type="date" name="birthDate" required value={formData.birthDate} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Número de Licencia *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.licenseNumber || "Número de Licencia *"}</label>
               <input type="text" name="licenseNumber" required value={formData.licenseNumber} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Expiración de Licencia *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.licenseExpiry || "Fecha de Expiración de Licencia *"}</label>
               <input type="date" name="licenseExpiry" required value={formData.licenseExpiry} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Email *</label>
-              <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="nombre@correo.com" />
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.email || "Email *"}</label>
+              <input type="email" name="email" required value={formData.email} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={t.rentalPage?.placeholders?.email || "nombre@correo.com"} />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono *</label>
-              <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 9999-9999" />
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.phone || "Teléfono *"}</label>
+              <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder={t.rentalPage?.placeholders?.phone || "Ej. 9999-9999"} />
             </div>
             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Dirección de Residencia *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.address || "Dirección de Residencia *"}</label>
                 <input type="text" name="address" required value={formData.address} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Punto de Referencia</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.referencePoint || "Punto de Referencia"}</label>
                 <input type="text" name="referencePoint" value={formData.referencePoint} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
             <div className="sm:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Ciudad *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.city || "Ciudad *"}</label>
                 <input type="text" name="city" required value={formData.city} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Estado/Provincia *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.state || "Estado/Provincia *"}</label>
                 <input type="text" name="state" required value={formData.state} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Código Postal</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.zipCode || "Código Postal"}</label>
                 <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">País de Residencia *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.country || "País de Residencia *"}</label>
                 <select name="country" value={formData.country} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700">
-                  <option value="Honduras">Honduras</option>
-                  <option value="Estados Unidos">Estados Unidos</option>
-                  <option value="Otro">Otro</option>
+                  <option value="Honduras">{t.rentalPage?.countries?.honduras || "Honduras"}</option>
+                  <option value="Estados Unidos">{t.rentalPage?.countries?.usa || "Estados Unidos"}</option>
+                  <option value="Otro">{t.rentalPage?.countries?.other || "Otro"}</option>
                 </select>
               </div>
             </div>
@@ -323,46 +325,46 @@ export default function RentarVehiculoPage() {
         {/* BLOQUE 2: INFORMACIÓN DE TRABAJO */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <Briefcase className="w-5 h-5" /> 2. Información de Trabajo
+            <Briefcase className="w-5 h-5" /> {t.sections?.work || "2. Información de Trabajo"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Nombre de Empresa *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workCompany || "Nombre de Empresa *"}</label>
               <input type="text" name="workCompany" required value={formData.workCompany} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Cargo *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workPosition || "Cargo *"}</label>
               <input type="text" name="workPosition" required value={formData.workPosition} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Email Trabajo *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workEmail || "Email Trabajo *"}</label>
               <input type="email" name="workEmail" required value={formData.workEmail} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Teléfono Trabajo *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workPhone || "Teléfono Trabajo *"}</label>
               <input type="tel" name="workPhone" required value={formData.workPhone} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Dirección de Trabajo *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workAddress1 || "Dirección de Trabajo *"}</label>
                 <input type="text" name="workAddress1" required value={formData.workAddress1} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Dirección de Trabajo (Línea 2)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.workAddress2 || "Dirección de Trabajo (Línea 2)"}</label>
                 <input type="text" name="workAddress2" value={formData.workAddress2} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Ciudad *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.city || "Ciudad *"}</label>
                 <input type="text" name="workCity" required value={formData.workCity} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Estado/Provincia *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.state || "Estado/Provincia *"}</label>
                 <input type="text" name="workState" required value={formData.workState} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Código Postal</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.zipCode || "Código Postal"}</label>
                 <input type="text" name="workZipCode" value={formData.workZipCode} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
@@ -372,28 +374,28 @@ export default function RentarVehiculoPage() {
         {/* BLOQUE 3: INFORMACIÓN DE ALOJAMIENTO */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <Home className="w-5 h-5" /> 3. Información de Alojamiento (Opcional)
+            <Home className="w-5 h-5" /> {t.sections?.stay || "3. Información de Alojamiento (Opcional)"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Dirección de Alojamiento</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.stayAddress1 || "Dirección de Alojamiento"}</label>
               <input type="text" name="stayAddress1" value={formData.stayAddress1} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Dirección de Alojamiento (Línea 2)</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.stayAddress2 || "Dirección de Alojamiento (Línea 2)"}</label>
               <input type="text" name="stayAddress2" value={formData.stayAddress2} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Ciudad</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.stayCity || "Ciudad"}</label>
                 <input type="text" name="stayCity" value={formData.stayCity} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Departamento</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.stayState || "Departamento"}</label>
                 <input type="text" name="stayState" value={formData.stayState} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Código Postal</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.zipCode || "Código Postal"}</label>
                 <input type="text" name="stayZipCode" value={formData.stayZipCode} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
@@ -403,32 +405,32 @@ export default function RentarVehiculoPage() {
         {/* BLOQUE 4: DETALLES DE RENTA */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <CalendarDays className="w-5 h-5" /> 4. Detalles de Renta
+            <CalendarDays className="w-5 h-5" /> {t.sections?.details || "4. Detalles de Renta"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Recogida *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.pickupDate || "Fecha de Recogida *"}</label>
               <input type="date" name="pickupDate" required value={formData.pickupDate} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Hora de Recogida *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.pickupTime || "Hora de Recogida *"}</label>
               <input type="time" name="pickupTime" required value={formData.pickupTime} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Fecha de Devolución *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.returnDate || "Fecha de Devolución *"}</label>
               <input type="date" name="returnDate" required value={formData.returnDate} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Hora de Devolución *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.returnTime || "Hora de Devolución *"}</label>
               <input type="time" name="returnTime" required value={formData.returnTime} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 mb-1">Tipo de Vehículo *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1">{t.rentalPage?.labels?.vehicleType || "Tipo de Vehículo *"}</label>
               <select name="vehicleType" required value={formData.vehicleType} onChange={handleInputChange} className="w-full rounded-lg border border-slate-200 p-2.5 text-sm bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700">
-                <option value="">Seleccione el tipo de vehículo</option>
-                <option value="Turismo">Turismo Económico</option>
-                <option value="SUV/Camioneta">SUV Familiar</option>
-                <option value="Pickup">Pickup de Trabajo / 4x4</option>
+                <option value="">{t.rentalPage?.placeholders?.vehicleTypeDefault || "Seleccione el tipo de vehículo"}</option>
+                <option value="Turismo">{t.rentalPage?.vehicleTypes?.economy || "Turismo Económico"}</option>
+                <option value="SUV/Camioneta">{t.rentalPage?.vehicleTypes?.suv || "SUV Familiar"}</option>
+                <option value="Pickup">{t.rentalPage?.vehicleTypes?.pickup || "Pickup de Trabajo / 4x4"}</option>
               </select>
             </div>
           </div>
@@ -437,55 +439,55 @@ export default function RentarVehiculoPage() {
         {/* BLOQUE 5: SUBIDA DE DOCUMENTACIÓN */}
         <div className="space-y-4">
           <h2 className="text-base font-bold text-blue-900 border-b border-slate-100 pb-2 flex items-center gap-2">
-            <FileText className="w-5 h-5" /> 5. Documentación Requerida
+            <FileText className="w-5 h-5" /> {t.sections?.docs || "5. Documentación Requerida"}
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             
             {/* Cargar Licencia */}
             <div className="border border-slate-200 p-4 rounded-xl bg-slate-50/50 text-center flex flex-col justify-center min-h-[110px]">
-              <label className="block text-xs font-bold text-slate-700 mb-2">Imagen de Licencia *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">{t.rentalPage?.labels?.licenseImg || "Imagen de Licencia *"}</label>
               {licenseImg ? (
-                <p className="text-xs text-emerald-600 font-bold flex items-center justify-center gap-1">✓ Archivo cargado correctamente</p>
+                <p className="text-xs text-emerald-600 font-bold flex items-center justify-center gap-1">{t.rentalPage?.multimedia?.successUpload || "✓ Archivo cargado correctamente"}</p>
               ) : (
                 <input type="file" accept="image/*" required onChange={(e) => { if(e.target.files?.[0]) uploadToFirebase(e.target.files[0], 'licencia', setLicenseImg); }} className="text-xs w-full cursor-pointer" />
               )}
-              {loadingFile['licencia'] && <p className="text-xs text-blue-600 mt-1 animate-pulse flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Subiendo...</p>}
+              {loadingFile['licencia'] && <p className="text-xs text-blue-600 mt-1 animate-pulse flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {t.rentalPage?.multimedia?.uploading || "Subiendo..."}</p>}
             </div>
 
             {/* Cargar Identidad */}
             <div className="border border-slate-200 p-4 rounded-xl bg-slate-50/50 text-center flex flex-col justify-center min-h-[110px]">
-              <label className="block text-xs font-bold text-slate-700 mb-2">Imagen de Documento de Identidad *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2">{t.rentalPage?.labels?.idImg || "Imagen de Documento de Identidad *"}</label>
               {idImg ? (
-                <p className="text-xs text-emerald-600 font-bold flex items-center justify-center gap-1">✓ Archivo cargado correctamente</p>
+                <p className="text-xs text-emerald-600 font-bold flex items-center justify-center gap-1">{t.rentalPage?.multimedia?.successUpload || "✓ Archivo cargado correctamente"}</p>
               ) : (
                 <input type="file" accept="image/*" required onChange={(e) => { if(e.target.files?.[0]) uploadToFirebase(e.target.files[0], 'identidad', setIdImg); }} className="text-xs w-full cursor-pointer" />
               )}
-              {loadingFile['identidad'] && <p className="text-xs text-blue-600 mt-1 animate-pulse flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> Subiendo...</p>}
+              {loadingFile['identidad'] && <p className="text-xs text-blue-600 mt-1 animate-pulse flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {t.rentalPage?.multimedia?.uploading || "Subiendo..."}</p>}
             </div>
           </div>
 
           {/* MÓDULO SELFIE */}
           <div className="border border-slate-200 p-4 rounded-xl bg-slate-50/50 flex flex-col items-center justify-center min-h-[130px]">
-            <span className="text-xs font-bold text-slate-700 mb-2">Tomar Selfie *</span>
+            <span className="text-xs font-bold text-slate-700 mb-2">{t.rentalPage?.labels?.selfieImg || "Tomar Selfie *"}</span>
             {selfieImg ? (
               <div className="text-center flex flex-col items-center">
                 <img src={selfieImg} alt="Selfie" className="w-32 h-32 object-cover rounded-lg border border-slate-200" />
-                <button type="button" onClick={() => setSelfieImg('')} className="text-[10px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-md px-2.5 py-1 mt-2 cursor-pointer transition flex items-center gap-1"><Trash2 className="w-3 h-3" /> Re-tomar</button>
+                <button type="button" onClick={() => setSelfieImg('')} className="text-[10px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-md px-2.5 py-1 mt-2 cursor-pointer transition flex items-center gap-1"><Trash2 className="w-3 h-3" /> {t.rentalPage?.multimedia?.retake || "Re-tomar"}</button>
               </div>
             ) : cameraActive ? (
               <div className="flex flex-col items-center gap-2">
                 <video ref={videoRef} autoPlay playsInline className="w-48 h-36 object-cover bg-black rounded-lg" />
-                <button type="button" onClick={captureSelfie} className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-md cursor-pointer transition flex items-center gap-1"><Camera className="w-3 h-3" /> Capturar Foto</button>
+                <button type="button" onClick={captureSelfie} className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-md cursor-pointer transition flex items-center gap-1"><Camera className="w-3 h-3" /> {t.rentalPage?.multimedia?.capture || "Capturar Foto"}</button>
               </div>
             ) : (
-              <button type="button" onClick={startCamera} className="border border-blue-600 text-blue-600 text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition flex items-center gap-1"><Camera className="w-3.5 h-3.5" /> Abrir Cámara</button>
+              <button type="button" onClick={startCamera} className="border border-blue-600 text-blue-600 text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-50 cursor-pointer transition flex items-center gap-1"><Camera className="w-3.5 h-3.5" /> {t.rentalPage?.multimedia?.openCamera || "Abrir Cámara"}</button>
             )}
           </div>
         </div>
 
         {/* BLOQUE 6: CANVAS DE FIRMA DIGITAL */}
         <div className="space-y-4 flex flex-col items-center">
-          <label className="block text-xs font-bold text-slate-700 text-center">6. Firma Digital (Dibuje sobre el cuadro) *</label>
+          <label className="block text-xs font-bold text-slate-700 text-center">{t.rentalPage?.labels?.signature || "6. Firma Digital (Dibuje sobre el cuadro) *"}</label>
           <div className="relative w-full max-w-md">
             <canvas
               ref={canvasRef}
@@ -498,7 +500,7 @@ export default function RentarVehiculoPage() {
               onTouchMove={draw}
               className="border-2 border-dashed border-slate-300 bg-white rounded-xl w-full h-32 cursor-crosshair touch-none"
             />
-            <button type="button" onClick={clearSignature} className="absolute top-2 right-2 border border-slate-300 bg-white text-slate-500 text-[10px] font-bold px-2 py-1 rounded-md hover:bg-slate-50 cursor-pointer transition">Borrar Firma</button>
+            <button type="button" onClick={clearSignature} className="absolute top-2 right-2 border border-slate-300 bg-white text-slate-500 text-[10px] font-bold px-2 py-1 rounded-md hover:bg-slate-50 cursor-pointer transition">{t.rentalPage?.multimedia?.clearSignature || "Borrar Firma"}</button>
           </div>
         </div>
 
@@ -506,7 +508,13 @@ export default function RentarVehiculoPage() {
         <div className="pt-4 space-y-4">
           <label className="flex items-start space-x-2 text-xs text-slate-600 cursor-pointer">
             <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-0.5 rounded text-blue-600 h-4 w-4 focus:ring-blue-500" />
-            <span>He leído y acepto los <Link href="/terminos" className="text-blue-600 underline font-medium hover:text-blue-800 transition">Términos y Condiciones</Link> de renta de vehículos.</span>
+            <span>
+              {language === 'en' ? 'I have read and accept the vehicle rental ' : 'He leído y acepto los '}
+              <Link href="/terminos" className="text-blue-600 underline font-medium hover:text-blue-800 transition">
+                {language === 'en' ? 'Terms and Conditions' : 'Términos y Condiciones'}
+              </Link>
+              {language === 'en' ? '.' : ' de renta de vehículos.'}
+            </span>
           </label>
 
           <button
@@ -517,9 +525,9 @@ export default function RentarVehiculoPage() {
             }`}
           >
             {isSending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Transmitiendo Solicitud...</>
+              <><Loader2 className="w-4 h-4 animate-spin" /> {t.rentalPage?.submittingBtn || "Transmitiendo Solicitud..."}</>
             ) : (
-              <>Enviar Solicitud de Renta <ArrowRight className="w-4 h-4" /></>
+              <>{t.rentalPage?.submitBtn || "Enviar Solicitud de Renta"} <ArrowRight className="w-4 h-4" /></>
             )}
           </button>
         </div>
@@ -529,15 +537,15 @@ export default function RentarVehiculoPage() {
           {submitStatus === 'success' && (
             <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col items-center text-center animate-fade-in">
               <CheckCircle2 className="w-8 h-8 text-emerald-600" />
-              <h3 className="text-base font-bold text-emerald-800 mt-2">¡Solicitud de renta transmitida con éxito!</h3>
-              <p className="text-xs text-emerald-600 mt-0.5">Revisaremos tu documentación en San Pedro Sula a la brevedad.</p>
+              <h3 className="text-base font-bold text-emerald-800 mt-2">{t.rentalPage?.successNotifyTitle || "¡Solicitud de renta transmitida con éxito!"}</h3>
+              <p className="text-xs text-emerald-600 mt-0.5">{t.rentalPage?.successNotifySub || "Revisaremos tu documentación en San Pedro Sula a la brevedad."}</p>
             </div>
           )}
 
           {submitStatus === 'error' && (
             <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-800 flex items-center justify-center gap-2 animate-fade-in">
               <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-              <span>Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde.</span>
+              <span>{t.rentalPage?.errorNotify || "Hubo un error al procesar el envío. Por favor, verifica los campos o intenta más tarde."}</span>
             </div>
           )}
         </div>

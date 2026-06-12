@@ -11,12 +11,14 @@ import AdminSidebar from '@/components/AdminSidebar';
 import InventoryTable from '@/components/InventoryTable';
 import VehicleForm from '@/components/VehicleForm';
 import RentalsTable, { Rental } from '@/components/RentalsTable';
+import { useLanguage } from '@/context/LanguageContext';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
 export default function PanelAdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<'vehiculos' | 'rentas' | 'clientes' | 'ajustes'>('vehiculos');
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -77,7 +79,7 @@ export default function PanelAdminPage() {
   };
 
   const handleDeleteVehicle = async (id: string) => {
-    if (confirm('¿Desea eliminar este vehículo por completo del stock?')) {
+    if (confirm(t.admin?.confirmations?.deleteVehicle || '¿Desea eliminar este vehículo por completo del stock?')) {
       try {
         await deleteDoc(doc(db, 'vehicles', id));
         fetchInventory();
@@ -108,7 +110,7 @@ export default function PanelAdminPage() {
   };
 
   if (loading || !user || user.email !== ADMIN_EMAIL) {
-    return <div className="p-12 text-center text-slate-500 text-sm">Verificando credenciales de acceso...</div>;
+    return <div className="p-12 text-center text-slate-500 text-sm">{t.admin?.verifyingCredentials || 'Verificando credenciales de acceso...'}</div>;
   }
 
   return (
@@ -123,7 +125,7 @@ export default function PanelAdminPage() {
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 flex-shrink-0 shadow-xs">
           <div>
             <span className="text-base md:text-xl font-black text-slate-900">
-              {activeTab === 'vehiculos' ? 'Vehículos' : activeTab === 'rentas' ? 'Alquileres' : activeTab === 'clientes' ? 'Clientes' : 'Ajustes'}
+              {activeTab === 'vehiculos' ? (t.admin?.tabs?.vehicles || 'Vehículos') : activeTab === 'rentas' ? (t.admin?.tabs?.rentals || 'Alquileres') : activeTab === 'clientes' ? (t.admin?.tabs?.customers || 'Clientes') : (t.admin?.tabs?.settings || 'Ajustes')}
             </span>
           </div>
           {activeTab === 'vehiculos' && (
@@ -131,7 +133,7 @@ export default function PanelAdminPage() {
               onClick={handlePublishClick}
               className="rounded-lg bg-blue-600 px-3 md:px-4 py-2 text-[11px] md:text-xs font-bold text-white hover:bg-blue-700 transition flex items-center gap-1.5"
             >
-              {showAddForm ? <><List className="w-4 h-4" /> Ver Lista</> : <><Plus className="w-4 h-4" /> Publicar</>}
+              {showAddForm ? <><List className="w-4 h-4" /> {t.admin?.actions?.viewList || 'Ver Lista'}</> : <><Plus className="w-4 h-4" /> {t.admin?.actions?.publish || 'Publicar'}</>}
             </button>
           )}
         </header>
@@ -176,16 +178,16 @@ export default function PanelAdminPage() {
           {activeTab === 'clientes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
               <div className="text-blue-900 mx-auto flex justify-center"><Users className="w-10 h-10" /></div>
-              <h3 className="text-base md:text-lg font-bold text-slate-900">Directorio de Clientes Registrados</h3>
-              <p className="text-xs md:text-sm text-slate-400">Base de datos de perfiles que se registren en la plataforma, con sus números de teléfono y ciudades.</p>
+              <h3 className="text-base md:text-lg font-bold text-slate-900">{t.admin?.customersDirectory?.title || 'Directorio de Clientes Registrados'}</h3>
+              <p className="text-xs md:text-sm text-slate-400">{t.admin?.customersDirectory?.description || 'Base de datos de perfiles que se registren en la plataforma, con sus números de teléfono y ciudades.'}</p>
             </div>
           )}
 
           {activeTab === 'ajustes' && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
               <div className="text-blue-900 mx-auto flex justify-center"><Settings className="w-10 h-10" /></div>
-              <h3 className="text-base md:text-lg font-bold text-slate-900">Configuración del Portal</h3>
-              <p className="text-xs md:text-sm text-slate-400">Control de asesores de ventas activos, sucursales y parámetros generales del sitio.</p>
+              <h3 className="text-base md:text-lg font-bold text-slate-900">{t.admin?.portalSettings?.title || 'Configuración del Portal'}</h3>
+              <p className="text-xs md:text-sm text-slate-400">{t.admin?.portalSettings?.description || 'Control de asesores de ventas activos, sucursales y parámetros generales del sitio.'}</p>
             </div>
           )}
 
