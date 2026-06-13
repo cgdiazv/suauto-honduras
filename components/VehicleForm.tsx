@@ -252,17 +252,17 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 p-4 md:p-6 shadow-xs max-w-4xl mx-auto space-y-6 md:space-y-8">
       {/* Bloque 1 Form */}
       <div className="space-y-4">
-        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5 flex items-center gap-2">
+        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b border-slate-300 pb-1.5 flex items-center gap-2">
           {vehicleToEdit ? <><Edit className="w-4 h-4" /> Editando Ficha</> : '1. Información del Post'}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 mb-1">Título del Post</label>
-            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Estatus</label>
-            <select value={status} onChange={(e) => setStatus(e.target.value as 'Disponible' | 'Reservado' | 'Vendido')} className="w-full rounded-lg border p-2 text-sm bg-slate-50">
+            <select value={status} onChange={(e) => setStatus(e.target.value as 'Disponible' | 'Reservado' | 'Vendido')} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50">
               <option value="Disponible">Disponible</option>
               <option value="Reservado">Reservado</option>
               <option value="Vendido">Vendido</option>
@@ -276,24 +276,24 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
 
       {/* Bloque 2 Form */}
       <div className="space-y-4">
-        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5">2. Especificaciones Técnicas</h2>
+        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b border-slate-300 pb-1.5">2. Especificaciones Técnicas</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Marca</label>
-            <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50 font-medium">
+            <select value={brand} onChange={(e) => setBrand(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50 font-medium">
               {OPCIONES_MARCAS.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Modelo</label>
-            <select value={modelName} onChange={(e) => setModelName(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50 font-medium">
+            <select value={modelName} onChange={(e) => setModelName(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50 font-medium">
               {MAPA_MARCAS_MODELOS[brand]?.map(mod => <option key={mod} value={mod}>{mod}</option>)}
               <option value="Otro Modelo">-- Otro Modelo --</option>
             </select>
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Año</label>
-            <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="number" required value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
 
           {brand === "Isla de Opciones (Otra)" && (
@@ -311,24 +311,24 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Precio</label>
-            <input type="text" required value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="text" required value={price} onChange={(e) => setPrice(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Motor</label>
-            <input type="text" required value={engine} onChange={(e) => setEngine(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="text" required value={engine} onChange={(e) => setEngine(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Origen</label>
-            <input type="text" required value={countryOfOrigin} onChange={(e) => setCountryOfOrigin(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="text" required value={countryOfOrigin} onChange={(e) => setCountryOfOrigin(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="col-span-2">
               <label className="block text-xs font-semibold text-slate-700 mb-1">Millaje</label>
-              <input type="number" required value={mileageValue} onChange={(e) => setMileageValue(Number(e.target.value))} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+              <input type="number" required value={mileageValue} onChange={(e) => setMileageValue(Number(e.target.value))} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Unidad</label>
-              <select value={mileageUnit} onChange={(e) => setMileageUnit(e.target.value as 'Km' | 'Millas')} className="w-full rounded-lg border p-2 text-sm bg-slate-50">
+              <select value={mileageUnit} onChange={(e) => setMileageUnit(e.target.value as 'Km' | 'Millas')} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50">
                 <option value="Km">Km</option>
                 <option value="Millas">Millas</option>
               </select>
@@ -336,14 +336,14 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Asesor</label>
-            <input type="text" required value={salesAgent} onChange={(e) => setSalesAgent(e.target.value)} className="w-full rounded-lg border p-2 text-sm bg-slate-50" />
+            <input type="text" required value={salesAgent} onChange={(e) => setSalesAgent(e.target.value)} className="w-full rounded-lg border border-slate-200 p-2 text-sm bg-slate-50" />
           </div>
         </div>
       </div>
 
       {/* Bloque 3 Form Galería adaptable a rejillas móviles */}
       <div className="space-y-4">
-        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5">3. Galería de Fotos</h2>
+        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b border-slate-300 pb-1.5">3. Galería de Fotos</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {renderMediaField("Frente", "frente", imgFrente, setImgFrente)}
           {renderMediaField("Atrás", "atras", imgAtras, setImgAtras)}
@@ -360,7 +360,7 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
 
       {/* Bloque 4 Equipamiento Checkboxes responsivos */}
       <div className="space-y-6">
-        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b pb-1.5">4. Equipamiento</h2>
+        <h2 className="text-sm md:text-base font-bold text-blue-900 border-b border-slate-300 pb-1.5">4. Equipamiento</h2>
         <div>
           <h3 className="text-xs font-bold text-slate-800 mb-2">Tipo de Vehículo</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -385,7 +385,7 @@ export default function VehicleForm({ vehicleToEdit, onSaveSuccess, onCancel }: 
         </div>
       </div>
 
-      <div className="pt-4 border-t flex justify-end gap-3">
+      <div className="pt-4 border-t border-slate-300 flex justify-end gap-3">
         <button type="button" onClick={onCancel} className="rounded-lg border px-4 py-2 text-xs text-slate-600">Cancelar</button>
         <button type="submit" disabled={formSubmitting} className="rounded-lg bg-blue-600 px-5 py-2 text-xs font-semibold text-white">
           {formSubmitting ? 'Procesando...' : vehicleToEdit ? 'Guardar' : 'Publicar'}
