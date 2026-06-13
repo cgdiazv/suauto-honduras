@@ -90,7 +90,7 @@ export default function Home() {
       <section 
         className="relative bg-cover bg-center py-24 px-4 text-white text-center"
         style={{ 
-          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85)), url('/hero-suauto.png')` 
+          backgroundImage: `linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.85)), url('/hero-suauto.webp')` 
         }}
       >
         <div className="mx-auto max-w-4xl space-y-6 relative z-10">
