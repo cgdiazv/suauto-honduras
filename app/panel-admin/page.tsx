@@ -15,6 +15,15 @@ import { useLanguage } from '@/context/LanguageContext';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
 
+export interface Customer {
+  id: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  createdAt?: any;
+}
+
 export default function PanelAdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -27,6 +36,8 @@ export default function PanelAdminPage() {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loadingRentals, setLoadingRentals] = useState(false);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -35,6 +46,7 @@ export default function PanelAdminPage() {
       } else {
         fetchInventory();
         fetchRentals();
+        fetchCustomers();
       }
     }
   }, [user, loading, router]);
@@ -70,6 +82,31 @@ export default function PanelAdminPage() {
       console.error(err);
     } finally {
       setLoadingRentals(false);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    setLoadingCustomers(true);
+    try {
+      const q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const data: Customer[] = [];
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() } as Customer);
+      });
+      setCustomers(data);
+    } catch (err) {
+      console.error("Error fetching customers, maybe missing index. Trying without orderBy.", err);
+      // Fallback query in case the index on 'createdAt' doesn't exist
+      const q2 = query(collection(db, 'users'));
+      const querySnapshot2 = await getDocs(q2);
+      const data: Customer[] = [];
+      querySnapshot2.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() } as Customer);
+      });
+      setCustomers(data);
+    } finally {
+      setLoadingCustomers(false);
     }
   };
 
@@ -176,10 +213,37 @@ export default function PanelAdminPage() {
           )}
 
           {activeTab === 'clientes' && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
-              <div className="text-blue-900 mx-auto flex justify-center"><Users className="w-10 h-10" /></div>
-              <h3 className="text-base md:text-lg font-bold text-slate-900">{t.admin?.customersDirectory?.title || 'Directorio de Clientes Registrados'}</h3>
-              <p className="text-xs md:text-sm text-slate-400">{t.admin?.customersDirectory?.description || 'Base de datos de perfiles que se registren en la plataforma, con sus números de teléfono y ciudades.'}</p>
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm text-slate-600">
+                    <thead className="bg-slate-50 border-b border-slate-200 text-slate-900 font-bold">
+                      <tr>
+                        <th className="p-4">Nombre</th>
+                        <th className="p-4">Correo Electrónico</th>
+                        <th className="p-4">Teléfono</th>
+                        <th className="p-4">Ciudad</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {loadingCustomers ? (
+                        <tr><td colSpan={4} className="p-8 text-center text-slate-400">Cargando clientes...</td></tr>
+                      ) : customers.length === 0 ? (
+                        <tr><td colSpan={4} className="p-8 text-center text-slate-400">No hay clientes registrados aún.</td></tr>
+                      ) : (
+                        customers.map((customer) => (
+                          <tr key={customer.id} className="hover:bg-slate-50 transition">
+                            <td className="p-4 font-medium text-slate-900">{customer.fullName || 'N/A'}</td>
+                            <td className="p-4">{customer.email || 'N/A'}</td>
+                            <td className="p-4">{customer.phone || 'N/A'}</td>
+                            <td className="p-4">{customer.city || 'N/A'}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 

@@ -19,7 +19,8 @@ import {
   FileText, 
   User, 
   ShieldCheck, 
-  Compass 
+  Compass,
+  X 
 } from 'lucide-react';
 
 export default function VehiculoDetailPage() {
@@ -33,6 +34,9 @@ export default function VehiculoDetailPage() {
   
   // 💻 Estado Local de Favoritos
   const [isFavorito, setIsFavorito] = useState(false);
+
+  // 🖼️ Estado del Lightbox
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   // Clave de almacenamiento ligada al correo del usuario para evitar mezclas
   const storageKey = user ? `favs_${user.email}` : 'favs_anonymous';
@@ -133,7 +137,10 @@ export default function VehiculoDetailPage() {
         
         {/* Columna Izquierda: Galería de Imágenes */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs">
+          <div 
+            className="aspect-[4/3] w-full relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-xs cursor-pointer hover:opacity-95 transition"
+            onClick={() => setLightboxImage(vehicle.featuredImage)}
+          >
             <img 
               src={vehicle.featuredImage} 
               alt={vehicle.title} 
@@ -145,7 +152,11 @@ export default function VehiculoDetailPage() {
           {vehicle.galleryImages && Object.values(vehicle.galleryImages).some(url => url !== '') && (
             <div className="grid grid-cols-5 gap-2">
               {Object.entries(vehicle.galleryImages).map(([key, url]) => url && (
-                <div key={key} className="aspect-video rounded-lg overflow-hidden border bg-slate-50 cursor-pointer hover:opacity-80 transition">
+                <div 
+                  key={key} 
+                  className="aspect-video rounded-lg overflow-hidden border bg-slate-50 cursor-pointer hover:opacity-80 transition"
+                  onClick={() => setLightboxImage(url)}
+                >
                   <img src={url} alt={key} className="w-full h-full object-cover" />
                 </div>
               ))}
@@ -313,6 +324,27 @@ export default function VehiculoDetailPage() {
       <div className="text-center text-[11px] text-slate-400 italic pt-4 flex items-center justify-center gap-1">
         <ShieldCheck className="w-3.5 h-3.5 text-slate-400 inline" /> Precios sujetos a cambio. Por favor vea nuestra <Link href="/politica-de-privacidad" className="underline">Política de Privacidad</Link> para más info.
       </div>
+
+      {/* 🖼️ Lightbox Overlay */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white hover:text-slate-300 transition"
+            onClick={(e) => { e.stopPropagation(); setLightboxImage(null); }}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img 
+            src={lightboxImage} 
+            alt="Vista ampliada" 
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()} // Evita cerrar si hacen clic en la imagen
+          />
+        </div>
+      )}
 
     </div>
   );
