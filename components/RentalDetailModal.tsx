@@ -1,7 +1,7 @@
 // src/components/RentalDetailModal.tsx
 'use client';
 
-import { X, Printer, Calendar, User, Briefcase, MapPin, FileText } from 'lucide-react';
+import { X, Printer, FileText } from 'lucide-react';
 import { Rental } from './RentalsTable';
 
 interface RentalDetailModalProps {
@@ -20,7 +20,7 @@ export default function RentalDetailModal({ rental, isOpen, onClose }: RentalDet
     document.title = originalTitle;
   };
 
-  // 🔑 Cálculo dinámico de los días de renta basados en las cadenas de fecha
+  // Cálculo dinámico de los días de renta basados en las fechas
   const calcularDiasRenta = (): number => {
     if (!rental.pickupDate || !rental.returnDate) return 1;
     try {
@@ -65,38 +65,29 @@ export default function RentalDetailModal({ rental, isOpen, onClose }: RentalDet
         </div>
 
         {/* 📄 CONTENIDO DEL ACUERDO (Optimizado para pantalla e Impresión) */}
-        <div className="p-8 space-y-6 overflow-y-auto print:overflow-visible print:p-0 font-sans text-slate-800 text-sm leading-relaxed">
+        <div className="p-8 space-y-4 overflow-y-auto print:overflow-visible print:p-0 font-sans text-slate-800 text-xs leading-relaxed">
           
-          {/* Encabezado del Contrato Oficial (Visible siempre) */}
-          <div className="text-center border-b-2 border-slate-900 pb-3 mb-4">
-            <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">SU AUTO HONDURAS</h1>
-            <p className="text-xs uppercase font-bold tracking-widest text-slate-500 mt-0.5">Contrato de Arrendamiento de Vehículo</p>
-            <div className="flex justify-between items-center mt-3 text-xs font-mono text-slate-500 print:text-slate-900">
-              <span>Nº REFERENCIA: {rental.id?.substring(0, 8).toUpperCase() || 'WEB-TEMP'}</span>
-              <span>FECHA EMISIÓN: {rental.createdAt ? new Date(rental.createdAt).toLocaleDateString('es-HN') : 'N/A'}</span>
-            </div>
+          {/* Encabezado del Contrato Oficial */}
+          <div className="text-center border-b-2 border-slate-900 pb-2 mb-2">
+            <h1 className="text-lg font-black uppercase tracking-wider text-slate-900">CONTRATO DE ARRENDAMIENTO SU AUTO HONDURAS RENT A CAR</h1>
+            <p className="text-sm font-bold tracking-widest text-slate-600 mt-0.5">SU AUTO RENT A CAR</p>
           </div>
 
-          {/* TEXTO LEGAL OFICIAL CON RELLENO DINÁMICO */}
-          <div className="text-justify space-y-4 text-slate-900 print:text-black">
-            <p className="font-bold text-center border-b border-slate-200 pb-2">
-              CONTRATO DE ARRENDAMIENTO SU AUTO HONDURAS RENT A CAR
-            </p>
-            
+          {/* CUERPO DEL CONTRATO */}
+          <div className="text-justify space-y-3 text-slate-900 print:text-black">
             <p>
               Conste por el presente documento, el Contrato Abierto de Arrendamiento de Vehículos que celebran, de una parte, 
-              Yo, <strong>Luis Antonio Herrador</strong> en representación de <strong>Su Auto Honduras S de RL</strong>, 
-              con domicilio en el Barrio Guamilito 2da, Calle, 8 y 9 avenida en San Pedro Sula, con identidad 0501 1980 09066, 
-              mayor de edad, casado, profesión: Licenciado en Mercadotecnia (en adelante, &quot;EL ARRENDADOR&quot;) y la otra parte 
-              (en adelante, &quot;EL ARRENDATARIO&quot;), identificado con Identidad No. <span className="underline font-bold">{rental.idNumber || '_______'}</span> debidamente 
-              representada por <span className="underline font-bold">{rental.workPosition || 'Persona Natural'}</span> (cargo), <span className="underline font-bold">{rental.firstName} {rental.lastName}</span> (nombre), 
-              con domicilio en: <span className="underline font-bold">{rental.address || '_______'}</span> en el departamento de Cortés, Honduras, en los términos y condiciones siguientes:
+              Yo, <strong>Luis Antonio Herrador</strong> en representación de <strong>Su Auto Honduras S de RL</strong>, con domicilio en el Barrio Guamilito 2da, Calle, 8 y 9 avenida en San Pedro Sula, con identidad 0501 1980 09066, mayor de edad, casado, profesión: Licenciado en Mercadotecnia (en adelante, &quot;EL ARRENDADOR&quot;) y la otra parte (en adelante, &quot;EL ARRENDATARIO&quot;), identificado con Identidad No. <span className="underline font-bold">{rental.idNumber || '________________'}</span> debidamente representada por su <span className="underline font-bold">{rental.workPosition || '________________'}</span> (cargo), <span className="underline font-bold">{rental.firstName} {rental.lastName}</span> (nombre), con domicilio en: <span className="underline font-bold">{rental.address || '________________'}</span> del departamento de Cortés, Honduras, en los términos y condiciones siguientes:
             </p>
 
-            <p className="font-bold tracking-wide uppercase text-xs pt-1 border-b border-slate-200">DECLARACIONES</p>
+            <p className="font-bold uppercase border-b border-slate-200 pt-1 text-[11px]">DECLARACIONES</p>
             
             <p>
-              I. Declara EL ARRENDADOR ser propietaria del automóvil (objeto de este contrato) con las siguientes características: <span className="underline font-bold uppercase">{rental.vehicleType || rental.vehicleName || 'Vehículo Web'}</span>
+              I. Declara EL ARRENDADOR ser propietaria del automóvil (objeto de este contrato) que a continuación se describe:<br />
+              <span className="block pl-4 mt-1"><strong>Marca:</strong> <span className="underline uppercase font-semibold">{rental.vehicleName ? rental.vehicleName.split(' ')[0] : '________________'}</span></span>
+              <span className="block pl-4"><strong>Modelo:</strong> <span className="underline uppercase font-semibold">{rental.vehicleName ? rental.vehicleName.split(' ').slice(1).join(' ') : '________________'}</span></span>
+              <span className="block pl-4"><strong>Color:</strong> <span className="underline font-semibold">________________</span></span>
+              <span className="block pl-4"><strong>Placa:</strong> <span className="underline font-semibold">________________</span></span>
             </p>
             
             <p>
@@ -111,109 +102,111 @@ export default function RentalDetailModal({ rental, isOpen, onClose }: RentalDet
               Estando LAS PARTES de acuerdo en lo anteriormente descrito, así como conociendo el contenido de las declaraciones vertidas con anterioridad, las cuales ratifican por contener la verdad, y sin existir error, dolo, violencia, mala fe o vicio alguno en el consentimiento que pudieran invalidar el mismo, sirvan en someterse a las siguientes Cláusulas:
             </p>
 
-            <p className="font-bold tracking-wide uppercase text-xs pt-1 border-b border-slate-200">CLÁUSULAS</p>
+            <p className="font-bold uppercase border-b border-slate-200 pt-1 text-[11px]">CLÁUSULAS</p>
 
             <p>
-              <strong>CLÁUSULA PRIMERA. OBJETO DEL CONTRATO E INFORMACIÓN DEL CLIENTE</strong><br />
-              El presente contrato tiene por objeto, el arrendamiento del automóvil descrito en las declaraciones, para uso y goce temporal. Este activo tendrá monitoreo por GPS. El cliente deberá presentar los siguientes documentos: Cédula de Identidad vigente que establezca que la persona es mayor de 23 años; Licencia Nacional Vigente o del país origen; Pasaporte, en caso de ser extranjero.
+              <strong>CLAUSULA PRIMERA. OBJETO DEL CONTRATO E INFORMACION DEL CLIENTE</strong><br />
+              El presente contrato tiene por objeto, el arrendamiento del automóvil descrito en las declaraciones, para uso y goce temporal. Este activo tendrá monitoreo por GPS. El cliente deberá presentar los siguientes documentos:<br />
+              1. Cédula de Identidad vigente que establezcan que la persona es mayor de 23 años.<br />
+              1. Licencia Nacional Vigente o del país origen.<br />
+              2. Pasaporte, en caso de ser extranjero.
             </p>
 
             <p>
-              <strong>CLÁUSULA SEGUNDA. VIGENCIA DEL CONTRATO</strong><br />
-              Las partes acuerdan que la duración del presente contrato será de: <span className="underline font-bold">{diasTotales}</span> días. En todo caso el contrato podrá ser prorrogado por acuerdo de las partes con una notificación previa por escrito, telefónico o medio digital con 24 horas de anticipación para verificar la disponibilidad del vehículo en renta.
+              <strong>CLAUSULA SEGUNDA. VIGENCIA DEL CONTRATO.</strong><br />
+              Las partes acuerdan que la duración del presente contrato será de: <span className="underline font-bold px-2">{diasTotales}</span> días. En todo caso el contrato podrá ser prorrogado por acuerdo de las partes con una notificación previa por escrito, telefónico o medio digital con 24 horas de anticipación para verificar la disponibilidad del vehículo en renta.
             </p>
 
             <p>
-              <strong>CLÁUSULA TERCERA. ENTREGA Y DEVOLUCIÓN DEL BIEN ARRENDADO.</strong><br />
-              A más tardar el día acordado, EL ARRENDADOR deberá hacer entrega a AL ARRENDATARIO del automóvil objeto de este contrato, así como de las llaves, boleta de revisión y/o controles o dispositivos, nivel de combustible correcto, además de las herramientas que sea necesaria para el funcionamiento del automóvil. Por la pérdida de las llaves se cobrará un recargo de $250.00 (O su equivalente en moneda nacional).<br />
+              <strong>CLAUSULA TERCERA. ENTREGA Y DEVOLUCOIN DEL BIEN ARRENDADO.</strong><br />
+              A más tardar el día acordado, EL ARRENDADOR deberá hacer entrega a AL ARRENDATARIO del automóvil objeto de este contrato, así como de las llaves, boleta de revisión y/o controles o dispositivos, nivel de combustible correcto, además de las herramientas que sea necesaria para el funcionamiento del automóvil. Por la pérdida de las llaves se cobrará un recargo de $ 250.00 (O su equivalente en moneda nacional).<br />
               Una vez terminado el contrato, EL ARRENDATARIO deberá hacer la devolución correspondiente del depósito dejado en garantía a EL ARRENDADOR del automóvil objeto de este contrato en el siguiente domicilio: Barrio Guamilito 2 calle NO, 8 y 9 avenida, o dirección previamente acordada por ambas partes. La devolución del automóvil se realizará en el mismo estado en el que haya sido entregado, salvo el desgaste normal y natural del mismo; exceptuando los desgastes mecánicos generados por una mala operación en el vehículo.
             </p>
 
             <p>
-              <strong>CLÁUSULA CUARTA. RENTA Y PAGO DE DEPÓSITO DE AUTOPROTECCIÓN</strong><br />
-              Las PARTES en común acuerdo establecen que EL ARRENDATARIO pagará a EL ARRENDADOR una renta diaria por la cantidad de LPS (1000 LPS), cantidad que deberá ser pagada por adelantado. El pago se podrá realizar en efectivo, tarjeta de débito Y/O crédito y transferencia bancaria. El pago del depósito en autoprotección deberá ser en efectivo por adelantado y por un valor de $_______ ó (5,000 LPS). EL ARRENDADOR se encuentra obligado a emitir los recibos por los pagos realizados.
+              <strong>CLAUSULA CUARTA. RENTA Y PAGO DE DEPOSITO DE AUTOPROTECCION</strong><br />
+              LAS PARTES en común acuerdo establecen que EL ARRENDATARIO pagará a EL ARRENDADOR una renta diaria por la cantidad de LPS (1000 LPS), cantidad que deberá ser pagado por adelantado. El pago se podrá realizar en efectivo, tarjeta de débito Y/O crédito y transferencia bancaria . El pago del depósito en autoprotección deberá ser en efectivo por adelantado y por un valor de $ ___ ó (5,000 LPS). EL ARRENDADOR se encuentra obligada a emitir los recibos por los pagos realizados.
             </p>
 
             <p>
-              <strong>CLÁUSULA QUINTA. OBLIGACIONES PARA LAS PARTES</strong><br />
+              <strong>CLAUSULA QUINTA. OBLIGACIONES PARA LAS PARTES</strong><br />
               EL ARRENDATARIO se hace responsable de todo daño, perjuicio, lesión o muerte causada a tercero por conducción descuidada, culpable o dolosa. Se obliga al cumplimiento de las normas de tránsito, respondiendo personalmente por multas o indemnizaciones. Serán de cargo del ARRENDADOR los gastos producidos por su parte. El arrendatario no podrá efectuar en el vehículo ningún tipo de modificaciones o alteraciones.
             </p>
 
             <p>
-              <strong>CLÁUSULA SEXTA. RETRASO EN EL INCUMPLIMIENTO DE CONTRATO</strong><br />
+              <strong>CLAUSULA SEXTA. RETRASO EN EL INCUMPLIMIENTO DE CONTRATO</strong><br />
               En caso de que EL ARRENDATARIO no pueda realizar el pago de la renta deberá dar aviso a EL ARRENDADOR de forma inmediata.
             </p>
 
             <p>
-              <strong>CLÁUSULA SÉPTIMA. INCUMPLIMIENTO DE CONTRATO</strong><br />
+              <strong>CLAUSULA SEPTIMA. INCUMPLIMIENTO DE CONTRATO</strong><br />
               Si EL ARRENDATARIO no devuelve voluntariamente el automóvil al término de la vigencia o no lo devuelve en las condiciones recibidas, dará motivos al pago de daños y perjuicios, que serán rebajados del depósito de autoprotección.
             </p>
 
             <p>
-              <strong>CLÁUSULA OCTAVA. DE LOS ACCIDENTES.</strong><br />
-              En caso de accidente, EL ARRENDATARIO deberá avisar de inmediato a EL ARRENDADOR, y estos avisaran a las compañías de seguros que correspondan y autoridades en un término no mayor a 2 horas.
+              <strong>CLAUSULA OCTAVA. DE LOS ACCIDENTES.</strong><br />
+              En caso de accidente, EL ARRENDATARIO deberá avisar de inmediato a EL ARRENDADOR, y estos avisarán a las compañías de seguros que correspondan y autoridades en un término no mayor a 2 horas.
             </p>
 
             <p>
-              <strong>CLÁUSULA NOVENA. DEL ROBO.</strong><br />
+              <strong>CLAUSULA NOVENA. DEL ROBO.</strong><br />
               En caso de robo EL ARRENDADOR deberá dar parte a la aseguradora que corresponda según la unidad y a las autoridades correspondientes en un máximo de 5 horas.
             </p>
 
             <p>
-              <strong>CLÁUSULA DÉCIMA. MODIFICACIONES DEL CONTRATO.</strong><br />
+              <strong>CLAUSULA DECIMA. MODIFICACIONES DEL CONTRATO.</strong><br />
               Solo podrá ser modificado mediante convenio escrito firmado por LAS PARTES.
             </p>
 
             <p>
-              <strong>CLÁUSULA DÉCIMA PRIMERA. COMUNICACIONES ENTRE LAS PARTES.</strong><br />
+              <strong>CLAUSULA DECIMA PRIMERA. COMUNICACIONES ENTRE LAS PARTES.</strong><br />
               Todo aviso o comunicación deberá realizarse por escrito en el domicilio señalado. Cambios de domicilio deben comunicarse 5 días antes; de lo contrario, deberá indemnizar por gastos extraordinarios para obtener el pago de renta o devolución del automóvil.
             </p>
 
             <p>
-              <strong>CLÁUSULA DÉCIMA SEGUNDA. DEROGACIÓN DE ACUERDOS ANTERIORES.</strong><br />
+              <strong>CLAUSULA DECIMA SEGUNDA. ABROGACION DE ACUERDOS ANTERIORES.</strong><br />
               Este contrato constituye el acuerdo total entre las partes, dejando sin efecto cualquier negociación previa.
             </p>
 
             <p>
-              <strong>CLÁUSULA DÉCIMA TERCERA. PROHIBICIONES</strong><br />
-              No se permite fumar dentro de las unidades; de lo contrario tendrán un recargo de $300.00. El automóvil sólo podrá ser conducido por la persona registrada en el contrato. No se permite el uso de vehículo para acarreo o transporte de sustancias ilícitas o peligrosas.
+              <strong>CLAUSULA DECIMA TERCERA. PROHIBICIONES</strong><br />
+              No se permite fumar dentro de las unidades; de lo contrario tendrán un recargo de $ 300.00. El automóvil solo podrá ser conducido por la persona registrada en el contrato. No se permite el uso de vehículo para acarreo ó transporte de sustancias ilícitas ó peligrosas.
             </p>
 
             <p>
-              <strong>CLÁUSULA DÉCIMA CUARTA. SOLUCIÓN DE CONFLICTOS Y LEGISLACIÓN APLICABLE</strong><br />
-              Cualquier controversia se someterá al Centro de Conciliación y Arbitraje de la Cámara de Comercio e Industrias de Cortés. En caso de accidente de tránsito el deducible será de Lps. 6,000. En caso de pérdida total el Coseguro es de Lps. 25,000.
+              <strong>CLAUSULA DECIMA CUARTA. SOLUCION DE CONFLICTOS Y LEGISLACION APLICABLE</strong><br />
+              Cualquier controversia se someterá al Centro de Conciliación y Arbitraje de la Cámara de Comercio e Industrias de Cortés. En caso de accidente de tránsito el deducible será de Lps. 6,000. En caso de pérdida total el Co-Seguro es de Lps. 25,000.
             </p>
           </div>
 
-          {/* Bloque 6: Área de Firmas Autógrafas */}
-          <div className="grid grid-cols-2 gap-12 pt-8 mt-6 border-t border-dashed border-slate-300 print:border-slate-400">
-            {/* Firma Cliente Digitalizada */}
-            <div className="text-center space-y-1">
-              <div className="h-16 flex items-center justify-center border-b border-slate-300 mx-auto max-w-[220px]">
-                {rental.signatureImgUrl ? (
-                  <img src={rental.signatureImgUrl} alt="Firma Cliente" className="max-h-full object-contain" />
-                ) : (
-                  <span className="text-xs text-slate-300 italic print:hidden">Firma física requerida</span>
-                )}
-              </div>
-              <span className="block text-xs font-bold text-slate-800 uppercase">Firma del Arrendatario</span>
-              <span className="block text-[10px] text-slate-400 text-center">ID: {rental.idNumber || '_______'}</span>
+          {/* Bloque de Firmas Estructurado */}
+          <div className="grid grid-cols-2 gap-16 pt-12 mt-8 border-t border-slate-300">
+            {/* Firma Administrador */}
+            <div className="text-center space-y-1.5">
+              <div className="h-16 border-b border-slate-400 mx-auto max-w-[240px]"></div>
+              <span className="block text-xs font-bold uppercase text-slate-800">Firma del Personal de Su Auto / Huella</span>
             </div>
 
-            {/* Firma Administrador */}
-            <div className="text-center space-y-1">
-              <div className="h-16 flex items-center justify-center border-b border-slate-300 mx-auto max-w-[220px]">
-                <span className="text-xs text-slate-300 italic print:hidden">Sello Autorizado</span>
+            {/* Firma Cliente */}
+            <div className="text-center space-y-1.5">
+              <div className="h-16 border-b border-slate-400 mx-auto max-w-[240px] flex items-center justify-center">
+                {rental.signatureImgUrl && (
+                  <img src={rental.signatureImgUrl} alt="Firma Digital" className="max-h-full object-contain" />
+                )}
               </div>
-              <span className="block text-xs font-bold text-slate-800 uppercase">Por: SU AUTO HONDURAS</span>
-              <span className="block text-[10px] text-slate-400 text-center">Firma Administrador</span>
+              <span className="block text-xs font-bold uppercase text-slate-800">Firma del Arrendatario / Huella</span>
             </div>
           </div>
 
-          {/* Galería de Documentos Adjuntos (Se oculta al imprimir) */}
+          {/* Compromiso Final */}
+          <p className="text-center font-bold text-slate-900 print:text-black italic pt-4 text-[11px]">
+            &quot;Me comprometo a pagar los gastos en que se incurra por el decomiso de la unidad rentada.&quot;
+          </p>
+
+          {/* Galería de Documentos Adjuntos (Oculta al imprimir) */}
           {(rental.licenseImgUrl || rental.idImgUrl || rental.selfieImgUrl) && (
             <div className="border-t border-slate-200 pt-4 mt-6 print:hidden">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Imágenes de Soporte</h4>
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Imágenes de Soporte (Solo Pantalla)</h4>
               <div className="grid grid-cols-3 gap-3">
                 {rental.licenseImgUrl && (
                   <div>
