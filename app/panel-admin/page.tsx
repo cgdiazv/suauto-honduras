@@ -11,6 +11,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import InventoryTable from '@/components/InventoryTable';
 import VehicleForm from '@/components/VehicleForm';
 import RentalsTable, { Rental } from '@/components/RentalsTable';
+import AdminSettingsForm from '@/components/AdminSettingsForm';
 import { useLanguage } from '@/context/LanguageContext';
 
 const ADMIN_EMAIL = "contacto@suautohonduras.com";
@@ -248,11 +249,7 @@ export default function PanelAdminPage() {
           )}
 
           {activeTab === 'ajustes' && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 md:p-12 text-center text-slate-500 max-w-2xl mx-auto space-y-3">
-              <div className="text-blue-900 mx-auto flex justify-center"><Settings className="w-10 h-10" /></div>
-              <h3 className="text-base md:text-lg font-bold text-slate-900">{t.admin?.portalSettings?.title || 'Configuración del Portal'}</h3>
-              <p className="text-xs md:text-sm text-slate-400">{t.admin?.portalSettings?.description || 'Control de asesores de ventas activos, sucursales y parámetros generales del sitio.'}</p>
-            </div>
+            <AdminSettingsForm />
           )}
 
         </div>
