@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext'; // 🔑 Importamos el contexto de idioma
+import TermsModal from '@/components/TermsModal';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore'; 
 import { storage, db } from '@/lib/firebase'; 
@@ -39,6 +40,7 @@ export default function RentarVehiculoPage() {
   const [idImg, setIdImg] = useState<string>('');
   const [selfieImg, setSelfieImg] = useState<string>('');
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   // Estados de proceso
   const [loadingFile, setLoadingFile] = useState<{ [key: string]: boolean }>({});
@@ -487,9 +489,9 @@ export default function RentarVehiculoPage() {
             <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-0.5 rounded text-blue-600 h-4 w-4 focus:ring-blue-500" />
             <span>
               {language === 'en' ? 'I have read and accept the vehicle rental ' : 'He leído y acepto los '}
-              <Link href="/terminos" className="text-blue-600 underline font-medium hover:text-blue-800 transition">
+              <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-blue-600 underline font-medium hover:text-blue-800 transition">
                 {language === 'en' ? 'Terms and Conditions' : 'Términos y Condiciones'}
-              </Link>
+              </button>
               {language === 'en' ? '.' : ' de renta de vehículos.'}
             </span>
           </label>
@@ -528,6 +530,8 @@ export default function RentarVehiculoPage() {
         </div>
 
       </form>
+
+      <TermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
     </div>
   );
 }
