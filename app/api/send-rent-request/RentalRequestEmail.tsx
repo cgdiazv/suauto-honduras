@@ -10,10 +10,20 @@ interface FormData {
   email: string;
   phone: string;
   address: string;
+  referencePoint?: string; // ➕ Agregado
+  city: string;            // ➕ Agregado
+  state: string;           // ➕ Agregado
+  zipCode?: string;        // ➕ Agregado
+  country: string;         // ➕ Agregado
   workCompany: string;
   workPosition: string;
   workEmail: string;
   workPhone: string;
+  stayAddress1?: string;   // ➕ Agregado
+  stayAddress2?: string;   // ➕ Agregado
+  stayCity?: string;       // ➕ Agregado
+  stayState?: string;      // ➕ Agregado
+  stayZipCode?: string;    // ➕ Agregado
   pickupDate: string;
   pickupTime: string;
   returnDate: string;
@@ -41,8 +51,10 @@ const headingStyle = {
   borderBottom: '2px solid #dddddd',
   paddingBottom: '10px',
   marginBottom: '15px',
-  fontSize: '18px',
+  fontSize: '14px',
+  fontWeight: 'bold' as 'bold',
   color: '#333333',
+  textTransform: 'uppercase' as 'uppercase',
 };
 
 const fieldStyle = {
@@ -66,7 +78,9 @@ const imageStyle = {
 const RentalRequestEmail: React.FC<RentalRequestEmailProps> = ({ formData }) => {
   const {
     firstName, lastName, idNumber, birthDate, licenseNumber, licenseExpiry, email, phone, address,
+    referencePoint, city, state, zipCode, country,
     workCompany, workPosition, workEmail, workPhone,
+    stayAddress1, stayAddress2, stayCity, stayState, stayZipCode,
     pickupDate, pickupTime, returnDate, returnTime, vehicleType,
     licenseImgUrl, idImgUrl, selfieImgUrl, signatureImgUrl
   } = formData;
@@ -82,6 +96,7 @@ const RentalRequestEmail: React.FC<RentalRequestEmailProps> = ({ formData }) => 
           <h1 style={{ color: '#0056b3', textAlign: 'center' }}>Nueva Solicitud de Renta de Vehículo</h1>
           <p style={{ textAlign: 'center', fontSize: '16px' }}>Se ha recibido una nueva solicitud a través del formulario web.</p>
 
+          {/* Sección 1: Información Personal (Campos de dirección expandidos) */}
           <div style={sectionStyle}>
             <h2 style={headingStyle}>Información Personal</h2>
             <p style={fieldStyle}><span style={labelStyle}>Nombre:</span> {firstName} {lastName}</p>
@@ -89,15 +104,38 @@ const RentalRequestEmail: React.FC<RentalRequestEmailProps> = ({ formData }) => 
             <p style={fieldStyle}><span style={labelStyle}>Teléfono:</span> {phone}</p>
             <p style={fieldStyle}><span style={labelStyle}>Identidad/Pasaporte:</span> {idNumber}</p>
             <p style={fieldStyle}><span style={labelStyle}>Fecha de Nacimiento:</span> {birthDate}</p>
-            <p style={fieldStyle}><span style={labelStyle}>Dirección:</span> {address}</p>
+            <p style={fieldStyle}><span style={labelStyle}>Dirección de Residencia:</span> {address}</p>
+            {referencePoint && <p style={fieldStyle}><span style={labelStyle}>Punto de Referencia:</span> {referencePoint}</p>}
+            <p style={fieldStyle}><span style={labelStyle}>Ubicación:</span> {city}, {state} {zipCode ? `(CP: ${zipCode})` : ''}, {country}</p>
           </div>
 
+          {/* Sección 2: Detalles de la Licencia */}
           <div style={sectionStyle}>
             <h2 style={headingStyle}>Detalles de la Licencia</h2>
             <p style={fieldStyle}><span style={labelStyle}>Número de Licencia:</span> {licenseNumber}</p>
             <p style={fieldStyle}><span style={labelStyle}>Expiración de Licencia:</span> {licenseExpiry}</p>
           </div>
 
+          {/* 🔑 Sección Nueva 3: Información de Trabajo */}
+          <div style={sectionStyle}>
+            <h2 style={headingStyle}>Información de Trabajo</h2>
+            <p style={fieldStyle}><span style={labelStyle}>Empresa:</span> {workCompany}</p>
+            <p style={fieldStyle}><span style={labelStyle}>Cargo:</span> {workPosition}</p>
+            <p style={fieldStyle}><span style={labelStyle}>Email de Trabajo:</span> {workEmail}</p>
+            <p style={fieldStyle}><span style={labelStyle}>Teléfono de Trabajo:</span> {workPhone}</p>
+          </div>
+
+          {/* 🔑 Sección Nueva 4: Información de Alojamiento (Muestra si se llenó) */}
+          {(stayAddress1 || stayCity || stayState) && (
+            <div style={sectionStyle}>
+              <h2 style={headingStyle}>Información de Alojamiento en Honduras</h2>
+              <p style={fieldStyle}><span style={labelStyle}>Dirección 1:</span> {stayAddress1 || 'N/A'}</p>
+              {stayAddress2 && <p style={fieldStyle}><span style={labelStyle}>Dirección 2:</span> {stayAddress2}</p>}
+              <p style={fieldStyle}><span style={labelStyle}>Ubicación Estadía:</span> {stayCity || 'N/A'}, {stayState || 'N/A'} {stayZipCode ? `(CP: ${stayZipCode})` : ''}</p>
+            </div>
+          )}
+
+          {/* Sección 5: Detalles de la Renta */}
           <div style={sectionStyle}>
             <h2 style={headingStyle}>Detalles de la Renta</h2>
             <p style={fieldStyle}><span style={labelStyle}>Tipo de Vehículo:</span> {vehicleType}</p>
@@ -105,6 +143,7 @@ const RentalRequestEmail: React.FC<RentalRequestEmailProps> = ({ formData }) => 
             <p style={fieldStyle}><span style={labelStyle}>Devolución:</span> {returnDate} a las {returnTime}</p>
           </div>
 
+          {/* Sección 6: Documentación Adjunta */}
           <div style={sectionStyle}>
             <h2 style={headingStyle}>Documentación Adjunta</h2>
             {licenseImgUrl && <div><p style={labelStyle}>Licencia:</p><a href={licenseImgUrl} target="_blank" rel="noopener noreferrer"><img src={licenseImgUrl} alt="Licencia" style={imageStyle} width="300"/></a></div>}
