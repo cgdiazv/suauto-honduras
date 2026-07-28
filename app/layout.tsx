@@ -9,10 +9,10 @@ import { LanguageProvider } from '@/context/LanguageContext'; // 🔑 Importar
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const viewport: Viewport = {
-  width: "device-width",
+export const viewport = {
+  width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // Remove maximum-scale=1 or user-scalable=no completely
 };
 
 export const metadata: Metadata = {

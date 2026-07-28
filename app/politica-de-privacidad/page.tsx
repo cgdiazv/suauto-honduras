@@ -83,10 +83,10 @@ export default function PoliticaPrivacidadPage() {
             <p className="text-xs text-slate-400 mt-0.5">Nuestro canal legal se encuentra a su disposición permanente.</p>
           </div>
           <a 
-            href="mailto:contacto@suautohn.com" 
+            href="mailto:contacto@suautohonduras.com" 
             className="rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs sm:text-sm px-4 py-2.5 transition flex items-center gap-2 border border-blue-200/40"
           >
-            <Mail className="w-4 h-4" /> contacto@suautohn.com
+            <Mail className="w-4 h-4" /> contacto@suautohonduras.com
           </a>
         </div>
 
