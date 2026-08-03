@@ -8,6 +8,24 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-slate-200 bg-white">
+      {/* Google Play Store Download Link */}
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 border-b border-slate-100">
+        <div className="flex justify-center">
+          <a
+            href="https://play.google.com/store/apps/details?id=com.indevasa.suauto&pcampaignid=web_share"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block"
+          >
+            <img
+              src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+              alt="Get it on Google Play"
+              className="h-14 w-auto"
+            />
+          </a>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <p className="text-center md:text-left text-sm text-slate-500">
           &copy; {new Date().getFullYear()} {t.footer.rights}
