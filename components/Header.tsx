@@ -23,7 +23,7 @@ export default function Header() {
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2" onClick={closeDrawer}>
+          <Link href="/" className="flex items-center space-x-2 shrink-0" onClick={closeDrawer}>
             <Image 
               src="/logo.webp" 
               alt="Su Auto Honduras" 
@@ -35,18 +35,18 @@ export default function Header() {
           </Link>
 
           {/* Navigation (Escritorio - Traducido Dinámicamente) */}
-          <nav className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
-            <Link href="/vender" className="hover:text-blue-600 transition">{t.nav.sell}</Link>
-            <Link href="/rentar" className="hover:text-blue-600 transition">{t.nav.rent}</Link>
-            <Link href="/noticias" className="hover:text-blue-600 transition">{t.nav.news}</Link>
-            <Link href="/contacto" className="hover:text-blue-600 transition">{t.nav.contact}</Link>
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-sm font-medium text-slate-600">
+            <Link href="/vender" className="hover:text-blue-600 transition whitespace-nowrap">{t.nav.sell}</Link>
+            <Link href="/rentar" className="hover:text-blue-600 transition whitespace-nowrap">{t.nav.rent}</Link>
+            <Link href="/noticias" className="hover:text-blue-600 transition whitespace-nowrap">{t.nav.news}</Link>
+            <Link href="/contacto" className="hover:text-blue-600 transition whitespace-nowrap">{t.nav.contact}</Link>
           </nav>
 
           {/* Bloque de Acciones y Selectores */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 lg:space-x-4">
             
             {/* SELECTOR DE IDIOMA MANUAL (Escritorio) */}
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg p-1 text-xs font-bold text-slate-500">
+            <div className="hidden lg:flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg p-1 text-xs font-bold text-slate-500 shrink-0">
               <Globe className="w-3.5 h-3.5 text-slate-400 ml-1" />
               <button 
                 onClick={() => setLanguage('es')} 
@@ -65,7 +65,7 @@ export default function Header() {
             {user ? (
               <Link 
                 href={isAdmin ? "/panel-admin" : "/cliente"} 
-                className={`hidden sm:inline-block rounded-lg px-5 py-2 text-sm font-semibold transition ${
+                className={`hidden lg:inline-block rounded-lg px-4 py-2 text-sm font-semibold transition whitespace-nowrap ${
                   isAdmin 
                     ? "bg-blue-50 text-blue-600 hover:bg-blue-100" 
                     : "bg-[#67bd45]/10 text-[#67bd45] hover:bg-[#67bd45]/20"
@@ -77,18 +77,18 @@ export default function Header() {
             ) : (
               <Link 
                 href="/login" 
-                className="hidden sm:inline-block rounded-lg bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 transition"
+                className="hidden lg:inline-block rounded-lg bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-100 transition whitespace-nowrap"
                 onClick={closeDrawer}
               >
                 {t.navAuth.loginBtn}
               </Link>
             ) }
 
-            {/* ☰ Icono de Menú Hamburguesa (Solo Móvil) */}
+            {/* ☰ Icono de Menú Hamburguesa (Móvil y Tablet) */}
             <button
               onClick={toggleDrawer}
               type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-hidden md:hidden cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md p-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:outline-hidden lg:hidden cursor-pointer"
               aria-label="Abrir menú de navegación"
             >
               <Menu className="h-6 w-6" />
@@ -97,8 +97,8 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 📱 DRAWER MÓVIL */}
-      <div className={`relative z-50 md:hidden ${isOpen ? 'block' : 'pointer-events-none'}`} role="dialog" aria-modal="true">
+      {/* 📱 DRAWER MÓVIL Y TABLET */}
+      <div className={`relative z-50 lg:hidden ${isOpen ? 'block' : 'pointer-events-none'}`} role="dialog" aria-modal="true">
         
         {/* Backdrop */}
         <div 
